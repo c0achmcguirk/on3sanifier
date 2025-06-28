@@ -1,30 +1,30 @@
 // Function to filter posts and threads based on user settings
-function filterContent() {
+function filterContent(): void {
   chrome.storage.sync.get(['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoredKeywords'], (settings) => {
     const { blockedUsers, alwaysShowUsers, ignoredThreads, ignoredKeywords } = settings;
 
     // Filter posts by author
-    document.querySelectorAll('article.forum-post').forEach(post => {
-      const authorElement = post.querySelector('.author-info .username');
+    document.querySelectorAll('article.forum-post').forEach((post: HTMLElement) => {
+      const authorElement = post.querySelector('.author-info .username') as HTMLElement;
       if (authorElement) {
         const author = authorElement.textContent;
-        if (blockedUsers && blockedUsers.includes(author)) {
+        if (author && blockedUsers && blockedUsers.includes(author)) {
           post.style.display = 'none';
         }
-        if (alwaysShowUsers && alwaysShowUsers.includes(author)) {
+        if (author && alwaysShowUsers && alwaysShowUsers.includes(author)) {
           post.style.display = 'block';
         }
       }
     });
 
     // Filter threads by ID or keyword
-    document.querySelectorAll('.thread-list-item').forEach(thread => {
-      const titleElement = thread.querySelector('.thread-title');
+    document.querySelectorAll('.thread-list-item').forEach((thread: HTMLElement) => {
+      const titleElement = thread.querySelector('.thread-title') as HTMLElement;
       if (titleElement) {
-        const title = titleElement.textContent.toLowerCase();
+        const title = titleElement.textContent?.toLowerCase();
         const threadId = thread.dataset.threadId;
 
-        if (ignoredThreads) {
+        if (title && ignoredThreads) {
           for (const ignored of ignoredThreads) {
             if (threadId === ignored || title.includes(ignored.toLowerCase())) {
               thread.style.display = 'none';
@@ -33,7 +33,7 @@ function filterContent() {
           }
         }
 
-        if (ignoredKeywords) {
+        if (title && ignoredKeywords) {
           for (const keyword of ignoredKeywords) {
             if (title.includes(keyword.toLowerCase())) {
               thread.style.display = 'none';
@@ -52,4 +52,5 @@ filterContent();
 // We can use a MutationObserver for this.
 const observer = new MutationObserver(filterContent);
 observer.observe(document.body, { childList: true, subtree: true });
+
 

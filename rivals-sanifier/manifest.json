@@ -8,16 +8,16 @@
     "activeTab"
   ],
   "background": {
-    "service_worker": "background.js",
-    "scripts": ["background.js"]
+    "service_worker": "dist/background.js",
+    "scripts": ["dist/background.js"]
   },
   "content_scripts": [
     {
       "matches": ["*://*.rivals.com/*"],
-      "js": ["content.js"]
+      "js": ["dist/content.js"]
     }
   ],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "public/popup.html"
   }
 }

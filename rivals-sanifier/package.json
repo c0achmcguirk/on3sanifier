@@ -1,0 +1,19 @@
+{
+  "name": "rivals-sanifier",
+  "version": "1.0.0",
+  "description": "Filters posts and threads on rivals.com.",
+  "main": "dist/background.js",
+  "scripts": {
+    "build": "tsc && npm run copy-assets",
+    "copy-assets": "cpx \"public/**/*\" dist/public && cpx manifest.json dist",
+    "watch": "npm run build && tsc --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "cpx": "^1.2.1",
+    "typescript": "^5.4.5"
+  }
+}
