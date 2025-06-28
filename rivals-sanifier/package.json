@@ -5,7 +5,7 @@
   "main": "dist/background.js",
   "scripts": {
     "build": "tsc && npm run copy-assets",
-    "copy-assets": "cpx \"public/**/*\" dist/public && cpx manifest.json dist",
+    "copy-assets": "cpx \"public/**/*\" dist/public && cpx manifest.json dist && cpx \"src/site-style.css\" dist",
     "watch": "npm run build && tsc --watch"
   },
   "keywords": [],

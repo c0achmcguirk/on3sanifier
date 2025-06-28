@@ -24,5 +24,11 @@
     "gecko": {
       "id": "rivals-sanifier@example.com"
     }
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["dist/site-style.css"],
+      "matches": ["*://*.rivals.com/*"]
+    }
+  ]
 }

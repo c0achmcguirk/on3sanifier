@@ -1,7 +1,15 @@
 // Inject CSS to hide threads
-const style = document.createElement('style');
-style.textContent = '.rivals-sanifier-hidden-thread { display: none !important; }';
-document.head.appendChild(style);
+(async () => {
+  try {
+    const response = await fetch(chrome.runtime.getURL('dist/site-style.css'));
+    const css = await response.text();
+    const style = document.createElement('style');
+    style.textContent = css;
+    document.head.appendChild(style);
+  } catch (error) {
+    console.error('Rivals Sanifier: Error injecting CSS', error);
+  }
+})();
 
 // Function to filter posts and threads based on user settings
 function filterContent(): void {
