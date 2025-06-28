@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Rivals Sanifier",
+  "version": "1.0",
+  "description": "Filters posts and threads on rivals.com.",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.rivals.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
