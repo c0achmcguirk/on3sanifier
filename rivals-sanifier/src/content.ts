@@ -1,45 +1,67 @@
+// Inject CSS to hide threads
+const style = document.createElement('style');
+style.textContent = '.rivals-sanifier-hidden-thread { display: none !important; }';
+document.head.appendChild(style);
+
 // Function to filter posts and threads based on user settings
 function filterContent(): void {
   chrome.storage.sync.get(['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoredKeywords'], (settings) => {
-    const { blockedUsers, alwaysShowUsers, ignoredThreads, ignoredKeywords } = settings;
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError);
+      return;
+    }
+    const {
+      blockedUsers = [],
+      alwaysShowUsers = [],
+      ignoredThreads = [],
+      ignoredKeywords = []
+    } = settings;
 
     // Filter posts by author
     document.querySelectorAll<HTMLElement>('article.forum-post').forEach(post => {
       const authorElement = post.querySelector<HTMLElement>('.author-info .username');
       if (authorElement) {
         const author = authorElement.textContent;
-        if (author && blockedUsers && blockedUsers.includes(author)) {
-          post.style.display = 'none';
+        if (author && blockedUsers.includes(author)) {
+          post.classList.add('rivals-sanifier-hidden-thread');
         }
-        if (author && alwaysShowUsers && alwaysShowUsers.includes(author)) {
-          post.style.display = 'block';
+        if (author && alwaysShowUsers.includes(author)) {
+          post.classList.remove('rivals-sanifier-hidden-thread');
         }
       }
     });
 
     // Filter threads by ID or keyword
-    document.querySelectorAll<HTMLElement>('.thread-list-item').forEach(thread => {
-      const titleElement = thread.querySelector<HTMLElement>('.thread-title');
+    document.querySelectorAll<HTMLElement>('.structItem--thread').forEach(thread => {
+      const titleElement = thread.querySelector<HTMLElement>('h3.structItem-title a:last-of-type');
       if (titleElement) {
-        const title = titleElement.textContent?.toLowerCase();
-        const threadId = thread.dataset.threadId;
+        const title = titleElement.textContent?.toLowerCase() || '';
+        const threadId = thread.dataset.threadListItem;
 
-        if (title && ignoredThreads) {
+        let shouldHide = false;
+
+        if (ignoredThreads.length > 0) {
           for (const ignored of ignoredThreads) {
             if (threadId === ignored || title.includes(ignored.toLowerCase())) {
-              thread.style.display = 'none';
-              return; // Move to the next thread
+              shouldHide = true;
+              break;
             }
           }
         }
 
-        if (title && ignoredKeywords) {
+        if (!shouldHide && ignoredKeywords.length > 0) {
           for (const keyword of ignoredKeywords) {
             if (title.includes(keyword.toLowerCase())) {
-              thread.style.display = 'none';
-              return; // Move to the next thread
+              shouldHide = true;
+              break;
             }
           }
+        }
+
+        if (shouldHide) {
+          thread.classList.add('rivals-sanifier-hidden-thread');
+        } else {
+          thread.classList.remove('rivals-sanifier-hidden-thread');
         }
       }
     });
