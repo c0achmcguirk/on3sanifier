@@ -4,8 +4,8 @@ function filterContent(): void {
     const { blockedUsers, alwaysShowUsers, ignoredThreads, ignoredKeywords } = settings;
 
     // Filter posts by author
-    document.querySelectorAll('article.forum-post').forEach((post: HTMLElement) => {
-      const authorElement = post.querySelector('.author-info .username') as HTMLElement;
+    document.querySelectorAll<HTMLElement>('article.forum-post').forEach(post => {
+      const authorElement = post.querySelector<HTMLElement>('.author-info .username');
       if (authorElement) {
         const author = authorElement.textContent;
         if (author && blockedUsers && blockedUsers.includes(author)) {
@@ -18,8 +18,8 @@ function filterContent(): void {
     });
 
     // Filter threads by ID or keyword
-    document.querySelectorAll('.thread-list-item').forEach((thread: HTMLElement) => {
-      const titleElement = thread.querySelector('.thread-title') as HTMLElement;
+    document.querySelectorAll<HTMLElement>('.thread-list-item').forEach(thread => {
+      const titleElement = thread.querySelector<HTMLElement>('.thread-title');
       if (titleElement) {
         const title = titleElement.textContent?.toLowerCase();
         const threadId = thread.dataset.threadId;

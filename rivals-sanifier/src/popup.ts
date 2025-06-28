@@ -1,31 +1,43 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const app = document.getElementById('app') as HTMLElement;
-
   // Load settings from storage and display them
-  chrome.storage.sync.get(['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoredKeywords'], (settings) => {
-    const { blockedUsers, alwaysShowUsers, ignoredThreads, ignoredKeywords } = settings;
+  chrome.storage.sync.get(['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoredKeywords'], (result) => {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError);
+      return;
+    }
+    const settings = result || {};
+    const {
+      blockedUsers = [],
+      alwaysShowUsers = [],
+      ignoredThreads = [],
+      ignoredKeywords = []
+    } = settings;
 
-    app.innerHTML = `
-      <h2>Blocked Users</h2>
-      <textarea id="blockedUsers">${blockedUsers ? blockedUsers.join('\n') : ''}</textarea>
-      <h2>Always Show Users</h2>
-      <textarea id="alwaysShowUsers">${alwaysShowUsers ? alwaysShowUsers.join('\n') : ''}</textarea>
-      <h2>Ignored Threads (IDs or partial titles)</h2>
-      <textarea id="ignoredThreads">${ignoredThreads ? ignoredThreads.join('\n') : ''}</textarea>
-      <h2>Ignored Keywords</h2>
-      <textarea id="ignoredKeywords">${ignoredKeywords ? ignoredKeywords.join('\n') : ''}</textarea>
-      <br>
-      <button id="save">Save</button>
-    `;
+    (document.getElementById('blockedUsers') as HTMLTextAreaElement).value = blockedUsers.join('\n');
+    (document.getElementById('alwaysShowUsers') as HTMLTextAreaElement).value = alwaysShowUsers.join('\n');
+    (document.getElementById('ignoredThreads') as HTMLTextAreaElement).value = ignoredThreads.join('\n');
+    (document.getElementById('ignoredKeywords') as HTMLTextAreaElement).value = ignoredKeywords.join('\n');
+  });
 
-    (document.getElementById('save') as HTMLElement).addEventListener('click', () => {
-      const blockedUsers = (document.getElementById('blockedUsers') as HTMLTextAreaElement).value.split('\n').filter(Boolean);
-      const alwaysShowUsers = (document.getElementById('alwaysShowUsers') as HTMLTextAreaElement).value.split('\n').filter(Boolean);
-      const ignoredThreads = (document.getElementById('ignoredThreads') as HTMLTextAreaElement).value.split('\n').filter(Boolean);
-      const ignoredKeywords = (document.getElementById('ignoredKeywords') as HTMLTextAreaElement).value.split('\n').filter(Boolean);
-      chrome.storage.sync.set({ blockedUsers, alwaysShowUsers, ignoredThreads, ignoredKeywords }, () => {
-        alert('Settings saved!');
-      });
+  (document.getElementById('save') as HTMLElement).addEventListener('click', () => {
+    const blockedUsers = (document.getElementById('blockedUsers') as HTMLTextAreaElement).value.split('\n').filter(Boolean);
+    const alwaysShowUsers = (document.getElementById('alwaysShowUsers') as HTMLTextAreaElement).value.split('\n').filter(Boolean);
+    const ignoredThreads = (document.getElementById('ignoredThreads') as HTMLTextAreaElement).value.split('\n').filter(Boolean);
+    const ignoredKeywords = (document.getElementById('ignoredKeywords') as HTMLTextAreaElement).value.split('\n').filter(Boolean);
+    chrome.storage.sync.set({ blockedUsers, alwaysShowUsers, ignoredThreads, ignoredKeywords }, () => {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError);
+        // Optionally, show an error toast to the user
+        return;
+      }
+      const toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.className = 'show';
+      toast.textContent = 'Settings saved!';
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
     });
   });
 });
