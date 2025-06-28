@@ -20,6 +20,10 @@
   "action": {
     "default_popup": "public/popup.html"
   },
+  "options_ui": {
+    "page": "public/options.html",
+    "open_in_tab": true
+  },
   "browser_specific_settings": {
     "gecko": {
       "id": "rivals-sanifier@example.com"
