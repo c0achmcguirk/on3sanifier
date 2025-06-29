@@ -1,1 +1,34 @@
-.rivals-sanifier-hidden-thread { display: none !important; }
+@keyframes glow-and-fade {
+  0% {
+    background-color: yellow;
+    opacity: 1;
+  }
+  100% {
+    background-color: #cacaca;
+    opacity: 0.55;
+  }
+}
+
+.rivals-sanifier-hidden-thread,
+.rivals-sanifier-hidden-post {
+  display: none !important;
+}
+
+body.rivsan-show-all .rivals-sanifier-hidden-thread {
+  display: table !important;
+  animation: glow-and-fade 0.5s forwards;
+}
+
+body.rivsan-show-all .rivals-sanifier-hidden-post {
+  display: block !important;
+  animation: glow-and-fade 0.5s forwards;
+}
+
+.rivsan-toolbar {
+  padding: 10px;
+  margin: 10px 0;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+

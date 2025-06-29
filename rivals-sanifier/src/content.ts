@@ -11,6 +11,31 @@
   }
 })();
 
+function injectCustomDivs(): void {
+  const targetDivs = document.querySelectorAll('.block-outer');
+  targetDivs.forEach(targetDiv => {
+    // Check if our div already exists to avoid duplicates
+    if (!targetDiv.previousElementSibling || !targetDiv.previousElementSibling.classList.contains('rivsan-toolbar')) {
+      const newDiv = document.createElement('div');
+      newDiv.className = 'rivsan-toolbar';
+
+      const showHiddenButton = document.createElement('button');
+      showHiddenButton.textContent = 'Show hidden';
+      showHiddenButton.addEventListener('click', () => {
+        document.body.classList.toggle('rivsan-show-all');
+        const isShowingAll = document.body.classList.contains('rivsan-show-all');
+        const newText = isShowingAll ? 'Sanify' : 'Show hidden';
+        document.querySelectorAll('.rivsan-toolbar button').forEach(button => {
+          (button as HTMLElement).textContent = newText;
+        });
+      });
+
+      newDiv.appendChild(showHiddenButton);
+      targetDiv.parentNode?.insertBefore(newDiv, targetDiv);
+    }
+  });
+}
+
 // Function to filter posts and threads based on user settings
 function filterContent(): void {
   chrome.storage.sync.get(['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoredKeywords'], (settings) => {
@@ -26,16 +51,17 @@ function filterContent(): void {
     } = settings;
 
     // Filter posts by author
-    document.querySelectorAll<HTMLElement>('article.forum-post').forEach(post => {
-      const authorElement = post.querySelector<HTMLElement>('.author-info .username');
-      if (authorElement) {
-        const author = authorElement.textContent;
-        if (author && blockedUsers.includes(author)) {
-          post.classList.add('rivals-sanifier-hidden-thread');
-        }
-        if (author && alwaysShowUsers.includes(author)) {
-          post.classList.remove('rivals-sanifier-hidden-thread');
-        }
+    document.querySelectorAll<HTMLElement>('article.message').forEach(post => {
+      const author = post.dataset.author?.toLowerCase();
+      if (!author) return;
+
+      const lowercasedBlockedUsers = blockedUsers.map(u => u.toLowerCase());
+      const lowercasedAlwaysShowUsers = alwaysShowUsers.map(u => u.toLowerCase());
+
+      if (lowercasedBlockedUsers.includes(author)) {
+        post.classList.add('rivals-sanifier-hidden-post');
+      } else if (lowercasedAlwaysShowUsers.includes(author)) {
+        post.classList.remove('rivals-sanifier-hidden-post');
       }
     });
 
@@ -76,11 +102,16 @@ function filterContent(): void {
   });
 }
 
+function runSanifier(): void {
+  filterContent();
+  injectCustomDivs();
+}
+
 // Run the filter when the page loads
-filterContent();
+runSanifier();
 
 // We can use a MutationObserver for this.
-const observer = new MutationObserver(filterContent);
+const observer = new MutationObserver(runSanifier);
 observer.observe(document.body, { childList: true, subtree: true });
 
 
