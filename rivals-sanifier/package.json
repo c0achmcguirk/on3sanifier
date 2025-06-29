@@ -4,16 +4,21 @@
   "description": "Filters posts and threads on rivals.com.",
   "main": "dist/background.js",
   "scripts": {
-    "build": "tsc && npm run copy-assets",
-    "copy-assets": "cpx \"public/**/*\" dist/public && cpx manifest.json dist && cpx \"src/site-style.css\" dist && cpx \"public/options.html\" dist/public",
-    "watch": "npm run build && tsc --watch"
+    "build": "node build.js",
+    "watch": "node build.js --watch"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/chrome": "^0.0.268",
-    "cpx": "^1.2.1",
+    "esbuild": "^0.25.5",
+    "esbuild-plugin-copy": "^2.1.1",
     "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@material/button": "^14.0.0",
+    "@material/ripple": "^14.0.0",
+    "@material/textfield": "^14.0.0"
   }
 }

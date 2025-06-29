@@ -1,10 +1,30 @@
+import { MDCRipple } from '@material/ripple';
+import '@material/button/dist/mdc.button.css';
+
 document.addEventListener('DOMContentLoaded', () => {
-  (document.getElementById('options') as HTMLElement).addEventListener('click', () => {
+  const optionsButton = document.getElementById('options') as HTMLElement;
+  const newPostsButton = document.getElementById('new-posts') as HTMLElement;
+
+  new MDCRipple(optionsButton);
+  new MDCRipple(newPostsButton);
+
+  optionsButton.addEventListener('click', () => {
     chrome.runtime.openOptionsPage();
   });
 
-  (document.getElementById('new-posts') as HTMLElement).addEventListener('click', () => {
-    // We'll implement this later
-    alert('This will take you to your favorite Rivals posts page.');
+  newPostsButton.addEventListener('click', () => {
+    chrome.storage.sync.get('favoriteRivalsPage', (settings) => {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError);
+        return;
+      }
+      const result = settings || {};
+      const { favoriteRivalsPage = '' } = result;
+      if (favoriteRivalsPage) {
+        chrome.tabs.create({ url: favoriteRivalsPage });
+      } else {
+        alert('Please set your favorite Rivals page in the options.');
+      }
+    });
   });
 });

@@ -2,22 +2,66 @@
 <html>
 <head>
   <title>Rivals Sanifier Options</title>
-  <link rel="stylesheet" type="text/css" href="public/popup.css">
+  <link rel="stylesheet" type="text/css" href="popup.css">
 </head>
 <body>
   <h1>Rivals Sanifier Options</h1>
   <div id="app">
-    <h2>Blocked Users</h2>
-    <textarea id="blockedUsers"></textarea>
-    <h2>Always Show Users</h2>
-    <textarea id="alwaysShowUsers"></textarea>
-    <h2>Ignored Threads</h2>
-    <textarea id="ignoredThreads"></textarea>
-    <h2>Ignored Keywords</h2>
-    <textarea id="ignoredKeywords"></textarea>
-    <button id="save">Save</button>
+    <div class="mdc-text-field mdc-text-field--textarea">
+      <textarea id="blockedUsers" class="mdc-text-field__input" rows="8" cols="40"></textarea>
+      <div class="mdc-notched-outline">
+        <div class="mdc-notched-outline__leading"></div>
+        <div class="mdc-notched-outline__notch">
+          <label for="blockedUsers" class="mdc-floating-label">Blocked Users</label>
+        </div>
+        <div class="mdc-notched-outline__trailing"></div>
+      </div>
+    </div>
+    <div class="mdc-text-field mdc-text-field--textarea">
+      <textarea id="alwaysShowUsers" class="mdc-text-field__input" rows="8" cols="40"></textarea>
+      <div class="mdc-notched-outline">
+        <div class="mdc-notched-outline__leading"></div>
+        <div class="mdc-notched-outline__notch">
+          <label for="alwaysShowUsers" class="mdc-floating-label">Always Show Users</label>
+        </div>
+        <div class="mdc-notched-outline__trailing"></div>
+      </div>
+    </div>
+    <div class="mdc-text-field mdc-text-field--textarea">
+      <textarea id="ignoredThreads" class="mdc-text-field__input" rows="8" cols="40"></textarea>
+      <div class="mdc-notched-outline">
+        <div class="mdc-notched-outline__leading"></div>
+        <div class="mdc-notched-outline__notch">
+          <label for="ignoredThreads" class="mdc-floating-label">Ignored Threads</label>
+        </div>
+        <div class="mdc-notched-outline__trailing"></div>
+      </div>
+    </div>
+    <div class="mdc-text-field mdc-text-field--textarea">
+      <textarea id="ignoredKeywords" class="mdc-text-field__input" rows="8" cols="40"></textarea>
+      <div class="mdc-notched-outline">
+        <div class="mdc-notched-outline__leading"></div>
+        <div class="mdc-notched-outline__notch">
+          <label for="ignoredKeywords" class="mdc-floating-label">Ignored Keywords</label>
+        </div>
+        <div class="mdc-notched-outline__trailing"></div>
+      </div>
+    </div>
+    <div class="mdc-text-field mdc-text-field--outlined">
+      <input type="text" id="favoriteRivalsPage" class="mdc-text-field__input">
+      <div class="mdc-notched-outline">
+        <div class="mdc-notched-outline__leading"></div>
+        <div class="mdc-notched-outline__notch">
+          <label for="favoriteRivalsPage" class="mdc-floating-label">Favorite Rivals Page URL</label>
+        </div>
+        <div class="mdc-notched-outline__trailing"></div>
+      </div>
+    </div>
+    <button class="mdc-button mdc-button--raised" id="save">
+      <span class="mdc-button__label">Save</span>
+    </button>
   </div>
   <div id="toast">Settings saved!</div>
-  <script src="options.js"></script>
+  <script src="../options.js"></script>
 </body>
 </html>
