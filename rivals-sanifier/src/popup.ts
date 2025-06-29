@@ -1,5 +1,4 @@
 import { MDCRipple } from '@material/ripple';
-import '@material/button/dist/mdc.button.css';
 
 document.addEventListener('DOMContentLoaded', () => {
   const optionsButton = document.getElementById('options') as HTMLElement;

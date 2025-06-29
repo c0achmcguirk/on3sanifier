@@ -1,38 +1,56 @@
 {
   "manifest_version": 3,
   "name": "Rivals Sanifier",
-  "version": "1.0",
+  "version": "1.0.0",
   "description": "Filters posts and threads on rivals.com.",
-  "permissions": [
-    "storage",
-    "activeTab"
-  ],
+  "icons": {
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "48": "images/icon48.png"
+    }
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
   "background": {
-    "service_worker": "dist/background.js",
-    "scripts": ["dist/background.js"]
+    "service_worker": "js/background.js",
+    "scripts": ["js/background.js"]
   },
   "content_scripts": [
     {
       "matches": ["*://*.rivals.com/*"],
-      "js": ["dist/content.js"]
+      "js": ["js/content.js"],
+      "css": ["site-style.css"]
     }
   ],
-  "action": {
-    "default_popup": "public/popup.html"
-  },
-  "options_ui": {
-    "page": "public/options.html",
-    "open_in_tab": true
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "*.html",
+        "*.css",
+        "js/*.js",
+        "images/*.png"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com;"
   },
   "browser_specific_settings": {
     "gecko": {
       "id": "rivals-sanifier@example.com"
     }
-  },
-  "web_accessible_resources": [
-    {
-      "resources": ["dist/site-style.css"],
-      "matches": ["*://*.rivals.com/*"]
-    }
-  ]
+  }
 }

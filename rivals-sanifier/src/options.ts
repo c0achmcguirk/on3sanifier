@@ -1,10 +1,5 @@
 import { MDCTextField } from '@material/textfield';
 import { MDCRipple } from '@material/ripple';
-import '@material/textfield/dist/mdc.textfield.css';
-import '@material/button/dist/mdc.button.css';
-import '@material/floating-label/dist/mdc.floating-label.css';
-import '@material/notched-outline/dist/mdc.notched-outline.css';
-import '@material/line-ripple/dist/mdc.line-ripple.css';
 
 document.addEventListener('DOMContentLoaded', () => {
   const textFields = Array.from(document.querySelectorAll('.mdc-text-field')).map(el => new MDCTextField(el));

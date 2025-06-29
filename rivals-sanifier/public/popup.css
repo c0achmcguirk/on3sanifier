@@ -1,6 +1,7 @@
 body {
   font-family: sans-serif;
   width: 450px;
+  min-width: 450px;
 }
 
 h1, h2 {
@@ -13,14 +14,7 @@ textarea {
   margin-bottom: 10px;
 }
 
-button {
-  width: 100%;
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
+
 
 #toast {
   visibility: hidden;
