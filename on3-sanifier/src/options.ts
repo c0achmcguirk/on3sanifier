@@ -5,39 +5,48 @@ import { MDCChipSet } from '@material/chips';
 document.addEventListener('DOMContentLoaded', () => {
   const settings = ['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoredKeywords'];
 
+  const createChip = (text: string) => {
+    const chipEl = document.createElement('div');
+    chipEl.className = 'mdc-evolution-chip';
+    chipEl.setAttribute('role', 'row');
+    chipEl.innerHTML = `
+      <span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--primary" role="gridcell">
+        <button class="mdc-evolution-chip__action mdc-evolution-chip__action--primary" type="button" tabindex="0">
+          <span class="mdc-evolution-chip__ripple mdc-evolution-chip__ripple--primary"></span>
+          <span class="mdc-evolution-chip__text-label">${text}</span>
+        </button>
+      </span>
+      <span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--trailing" role="gridcell">
+        <button class="mdc-evolution-chip__action mdc-evolution-chip__action--trailing" type="button" tabindex="-1" data-mdc-deletable="true" aria-label="Remove chip ${text}">
+          <span class="mdc-evolution-chip__ripple mdc-evolution-chip__ripple--trailing"></span>
+          <span class="mdc-evolution-chip__icon mdc-evolution-chip__icon--trailing">close</span>
+        </button>
+      </span>
+    `;
+    return chipEl;
+  };
+
   settings.forEach(setting => {
     const input = document.getElementById(`${setting}-input`) as HTMLInputElement;
     const addButton = document.querySelector(`button[data-setting="${setting}"]`) as HTMLElement;
     const chipSetEl = document.getElementById(`${setting}-chips`) as HTMLElement;
-    const chipSet = new MDCChipSet(chipSetEl);
-
-    const addChip = (text: string) => {
-      const chipEl = document.createElement('div');
-      chipEl.className = 'mdc-chip';
-      chipEl.innerHTML = `
-        <div class="mdc-chip__ripple"></div>
-        <span role="gridcell">
-          <span role="button" tabindex="0" class="mdc-chip__primary-action">
-            <span class="mdc-chip__text">${text}</span>
-          </span>
-          <span role="gridcell">
-            <i class="material-icons mdc-chip__icon mdc-chip__icon--trailing" tabindex="-1" role="button">cancel</i>
-          </span>
-        </span>
-      `;
-      chipSetEl.appendChild(chipEl);
-      chipSet.addChip(chipEl);
-    };
 
     addButton.addEventListener('click', () => {
       if (input.value) {
-        addChip(input.value);
+        const chipEl = createChip(input.value);
+        chipSetEl.appendChild(chipEl);
         input.value = '';
       }
     });
 
-    chipSetEl.addEventListener('MDCChip:removal', (event: any) => {
-      chipSet.removeChip(event.detail.chipId);
+    chipSetEl.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      if (target.closest('[data-mdc-deletable="true"]')) {
+        const chipEl = target.closest('.mdc-evolution-chip');
+        if (chipEl) {
+          chipEl.remove();
+        }
+      }
     });
   });
 
@@ -53,24 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadedSettings = result || {};
     settings.forEach(setting => {
       const values = loadedSettings[setting] || [];
+      const chipSetEl = document.getElementById(`${setting}-chips`) as HTMLElement;
       values.forEach((value: string) => {
-        const chipSetEl = document.getElementById(`${setting}-chips`) as HTMLElement;
-        const chipSet = new MDCChipSet(chipSetEl);
-        const chipEl = document.createElement('div');
-        chipEl.className = 'mdc-chip';
-        chipEl.innerHTML = `
-          <div class="mdc-chip__ripple"></div>
-          <span role="gridcell">
-            <span role="button" tabindex="0" class="mdc-chip__primary-action">
-              <span class="mdc-chip__text">${value}</span>
-            </span>
-            <span role="gridcell">
-              <i class="material-icons mdc-chip__icon mdc-chip__icon--trailing" tabindex="-1" role="button">cancel</i>
-            </span>
-          </span>
-        `;
+        const chipEl = createChip(value);
         chipSetEl.appendChild(chipEl);
-        chipSet.addChip(chipEl);
       });
     });
     (document.getElementById('favoriteRivalsPage-input') as HTMLInputElement).value = loadedSettings.favoriteRivalsPage || '';
@@ -80,8 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const newSettings: { [key: string]: any } = {};
     settings.forEach(setting => {
       const chipSetEl = document.getElementById(`${setting}-chips`) as HTMLElement;
-      const chipSet = new MDCChipSet(chipSetEl);
-      newSettings[setting] = chipSet.chips.map(chip => chip.root.querySelector('.mdc-chip__text')?.textContent || '').filter(Boolean);
+      const chips = Array.from(chipSetEl.querySelectorAll('.mdc-evolution-chip__text-label')).map(el => el.textContent || '').filter(Boolean);
+      newSettings[setting] = chips;
     });
     newSettings.favoriteRivalsPage = (document.getElementById('favoriteRivalsPage-input') as HTMLInputElement).value;
 
