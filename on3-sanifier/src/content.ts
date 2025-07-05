@@ -1,4 +1,4 @@
-// Inject CSS to hide threads
+// Inject CSS to hide threads.
 (async () => {
   try {
     const response = await fetch(chrome.runtime.getURL('dist/site-style.css'));
@@ -14,7 +14,7 @@
 function injectCustomDivs(): void {
   const targetDivs = document.querySelectorAll('.block-outer');
   targetDivs.forEach(targetDiv => {
-    // Check if our div already exists to avoid duplicates
+    // Check if our div already exists to avoid duplicates.
     if (!targetDiv.previousElementSibling || !targetDiv.previousElementSibling.classList.contains('on3san-toolbar')) {
       const newDiv = document.createElement('div');
       newDiv.className = 'on3san-toolbar';
@@ -36,7 +36,7 @@ function injectCustomDivs(): void {
   });
 }
 
-// Function to filter posts and threads based on user settings
+// Function to filter posts and threads based on user settings.
 function filterContent(): void {
   chrome.storage.sync.get(['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoredKeywords'], (settings) => {
     if (chrome.runtime.lastError) {
@@ -50,7 +50,7 @@ function filterContent(): void {
       ignoredKeywords = []
     } = settings;
 
-    // Filter posts by author
+    // Filter posts by author.
     document.querySelectorAll<HTMLElement>('article.message').forEach(post => {
       const author = post.dataset.author?.toLowerCase();
       if (!author) return;
@@ -65,9 +65,9 @@ function filterContent(): void {
       }
     });
 
-    // Filter threads by ID or keyword
+    // Filter threads by ID or keyword.
     document.querySelectorAll<HTMLElement>('.structItem--thread').forEach(thread => {
-      const titleElement = thread.querySelector<HTMLElement>('h3.structItem-title a:last-of-type');
+      const titleElement = thread.querySelector<HTMLElement>('div.structItem-title a:last-of-type');
       if (titleElement) {
         const title = titleElement.textContent?.toLowerCase() || '';
         const threadId = thread.dataset.threadListItem;
@@ -107,7 +107,7 @@ function runSanifier(): void {
   injectCustomDivs();
 }
 
-// Run the filter when the page loads
+// Run the filter when the page loads.
 runSanifier();
 
 // We can use a MutationObserver for this.
