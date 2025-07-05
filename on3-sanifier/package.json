@@ -4,28 +4,25 @@
   "description": "Filters posts and threads on on3.com.",
   "main": "dist/background.js",
   "scripts": {
-    "clean": "rimraf dist",
-    "build:ts": "esbuild src/*.ts --bundle --outdir=dist/js",
-    "build:css": "sass --load-path=node_modules src/theme.scss dist/theme.css",
-    "copy:assets": "cpx \"public/**/*\" dist && cpx \"src/site-style.css\" dist",
-    "build:manifest": "node scripts/prepare-manifest.js",
-    "build": "npm run clean && npm run build:ts && npm run build:css && npm run copy:assets && npm run build:manifest",
-    "watch": "npm run clean && esbuild src/*.ts --bundle --outdir=dist/js --watch"
+    "build": "node scripts/build.js",
+    "watch": "node scripts/build.js --watch"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/chrome": "^0.0.268",
-    "cpx": "^1.5.0",
     "esbuild": "^0.25.5",
+    "fs-extra": "^11.3.0",
     "rimraf": "^6.0.1",
-    "sass": "^1.89.2",
     "typescript": "^5.4.5"
   },
   "dependencies": {
     "@material/button": "^14.0.0",
+    "@material/chips": "^14.0.0",
+    "@material/icon-button": "^14.0.0",
     "@material/ripple": "^14.0.0",
-    "@material/textfield": "^14.0.0"
+    "@material/textfield": "^14.0.0",
+    "material-components-web": "^14.0.0"
   }
 }
