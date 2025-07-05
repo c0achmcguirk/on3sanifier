@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--trailing" role="gridcell">
         <button class="mdc-evolution-chip__action mdc-evolution-chip__action--trailing" type="button" tabindex="-1" data-mdc-deletable="true" aria-label="Remove chip ${text}">
           <span class="mdc-evolution-chip__ripple mdc-evolution-chip__ripple--trailing"></span>
-          <span class="mdc-evolution-chip__icon mdc-evolution-chip__icon--trailing">close</span>
+          <span class="mdc-evolution-chip__icon mdc-evolution-chip__icon--trailing">🆇</span>
         </button>
       </span>
     `;

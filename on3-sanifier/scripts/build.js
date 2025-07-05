@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const esbuild = require('esbuild');
+const sass = require('sass');
 
 const isWatch = process.argv.includes('--watch');
 
@@ -26,12 +27,15 @@ async function build() {
     outdir: path.join(distDir, 'js'),
   });
 
+  // Compile Sass
+  const sassResult = sass.compile(path.join(srcDir, 'theme.scss'), {
+    loadPaths: [nodeModulesDir]
+  });
+  await fs.writeFile(path.join(distDir, 'theme.css'), sassResult.css);
+
   // Copy static assets
   await fs.copy(publicDir, distDir);
   await fs.copy(path.join(srcDir, 'site-style.css'), path.join(distDir, 'site-style.css'));
-  await fs.copy(path.join(srcDir, 'theme.css'), path.join(distDir, 'theme.css'));
-  await fs.copy(path.join(nodeModulesDir, 'material-components-web/dist/material-components-web.min.css'), path.join(distDir, 'material.css'));
-
 
   // Prepare and copy manifest
   const manifestPath = path.join(__dirname, '../manifest.json');
