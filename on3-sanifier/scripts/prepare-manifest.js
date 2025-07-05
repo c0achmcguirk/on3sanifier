@@ -15,4 +15,4 @@ const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
 // }
 
 fs.writeFileSync(distPath, JSON.stringify(manifest, null, 2));
-console.log('Manifest prepared for distribution.');
+console.log('on3 Sanifier manifest prepared for distribution.');

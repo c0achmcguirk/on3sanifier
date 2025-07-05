@@ -1,6 +1,6 @@
-# Rivals Sanifier
+# on3 Sanifier
 
-This is a browser extension for Firefox and Chrome that filters posts and threads on rivals.com.
+This is a browser extension for Firefox and Chrome that filters posts and threads on on3.com.
 
 ## Development
 

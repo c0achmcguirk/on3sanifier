@@ -9,22 +9,22 @@
   }
 }
 
-.rivals-sanifier-hidden-thread,
-.rivals-sanifier-hidden-post {
+.on3-sanifier-hidden-thread,
+.on3-sanifier-hidden-post {
   display: none !important;
 }
 
-body.rivsan-show-all .rivals-sanifier-hidden-thread {
+body.on3san-show-all .on3-sanifier-hidden-thread {
   display: table !important;
   animation: glow-and-fade 0.5s forwards;
 }
 
-body.rivsan-show-all .rivals-sanifier-hidden-post {
+body.on3san-show-all .on3-sanifier-hidden-post {
   display: block !important;
   animation: glow-and-fade 0.5s forwards;
 }
 
-.rivsan-toolbar {
+.on3san-toolbar {
   padding: 10px;
   margin: 10px 0;
   background-color: #f0f0f0;

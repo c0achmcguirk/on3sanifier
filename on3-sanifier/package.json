@@ -1,7 +1,7 @@
 {
-  "name": "rivals-sanifier",
+  "name": "on3-sanifier",
   "version": "1.0.0",
-  "description": "Filters posts and threads on rivals.com.",
+  "description": "Filters posts and threads on on3.com.",
   "main": "dist/background.js",
   "scripts": {
     "clean": "rimraf dist",

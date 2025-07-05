@@ -7,7 +7,7 @@
     style.textContent = css;
     document.head.appendChild(style);
   } catch (error) {
-    console.error('Rivals Sanifier: Error injecting CSS', error);
+    console.error('on3 Sanifier: Error injecting CSS', error);
   }
 })();
 
@@ -15,17 +15,17 @@ function injectCustomDivs(): void {
   const targetDivs = document.querySelectorAll('.block-outer');
   targetDivs.forEach(targetDiv => {
     // Check if our div already exists to avoid duplicates
-    if (!targetDiv.previousElementSibling || !targetDiv.previousElementSibling.classList.contains('rivsan-toolbar')) {
+    if (!targetDiv.previousElementSibling || !targetDiv.previousElementSibling.classList.contains('on3san-toolbar')) {
       const newDiv = document.createElement('div');
-      newDiv.className = 'rivsan-toolbar';
+      newDiv.className = 'on3san-toolbar';
 
       const showHiddenButton = document.createElement('button');
       showHiddenButton.textContent = 'Show hidden';
       showHiddenButton.addEventListener('click', () => {
-        document.body.classList.toggle('rivsan-show-all');
-        const isShowingAll = document.body.classList.contains('rivsan-show-all');
+        document.body.classList.toggle('on3san-show-all');
+        const isShowingAll = document.body.classList.contains('on3san-show-all');
         const newText = isShowingAll ? 'Sanify' : 'Show hidden';
-        document.querySelectorAll('.rivsan-toolbar button').forEach(button => {
+        document.querySelectorAll('.on3san-toolbar button').forEach(button => {
           (button as HTMLElement).textContent = newText;
         });
       });
@@ -59,9 +59,9 @@ function filterContent(): void {
       const lowercasedAlwaysShowUsers = alwaysShowUsers.map(u => u.toLowerCase());
 
       if (lowercasedBlockedUsers.includes(author)) {
-        post.classList.add('rivals-sanifier-hidden-post');
+        post.classList.add('on3-sanifier-hidden-post');
       } else if (lowercasedAlwaysShowUsers.includes(author)) {
-        post.classList.remove('rivals-sanifier-hidden-post');
+        post.classList.remove('on3-sanifier-hidden-post');
       }
     });
 
@@ -93,9 +93,9 @@ function filterContent(): void {
         }
 
         if (shouldHide) {
-          thread.classList.add('rivals-sanifier-hidden-thread');
+          thread.classList.add('on3-sanifier-hidden-thread');
         } else {
-          thread.classList.remove('rivals-sanifier-hidden-thread');
+          thread.classList.remove('on3-sanifier-hidden-thread');
         }
       }
     });
