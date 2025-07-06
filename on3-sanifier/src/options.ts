@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addButton.addEventListener('click', () => {
       if (input.value) {
         const chipEl = createChip(input.value);
-        chipSetEl.appendChild(chipEl);
+        chipSetEl.querySelector('.mdc-evolution-chip-set__chips')?.appendChild(chipEl);
         input.value = '';
       }
     });
