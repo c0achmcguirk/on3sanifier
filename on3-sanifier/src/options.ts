@@ -23,7 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
         </button>
       </span>
       <span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--trailing" role="gridcell">
-        <button class="mdc-evolution-chip__action mdc-evolution-chip__action--trailing" type="button" tabindex="-1" data-mdc-deletable="true" aria-label="Remove chip ${text}">
+        <button class="mdc-evolution-chip__action mdc-evolution-chip__action--trailing on3san-chip-delicon"
+          type="button" tabindex="-1" data-mdc-deletable="true" aria-label="Remove chip ${text}">
           <span class="mdc-evolution-chip__ripple mdc-evolution-chip__ripple--trailing"></span>
           <span class="mdc-evolution-chip__icon mdc-evolution-chip__icon--trailing">🆇</span>
         </button>
@@ -108,4 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 3000);
     });
   });
+
+  // Initialize all inputs.
+  const textFieldElements = document.querySelectorAll('.mdc-text-field');
+  for (const domElement of textFieldElements) {
+    new MDCTextField(domElement);
+  }
 });

@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>on3 Sanifier Options</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="theme.css">
   <link rel="stylesheet" type="text/css" href="options.css">
@@ -21,9 +22,21 @@
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 on3san-main-bar">
           <div class="mdc-card">
             <div class="mdc-card__primary-action">
-              <h2>Blocked Users</h2>
+              <h5 class="mdc-typography--headline5">Blocked Users</h5>
+              <div class="on3san-infobox">
+                <div class="on3san-infobox-icon">
+                  <span class="material-icons">
+                    person_remove
+                    </span>
+                  </div>
+                <div class="on3san-infobox-text">
+                  on3 Sanifier will always hide posts by the users listed below. 
+                </div>
+              </div>
+
               <div class="setting-container">
                 <div class="mdc-text-field mdc-text-field--outlined" id="blockedUsers-input-container">
+
                   <input type="text" id="blockedUsers-input" class="mdc-text-field__input">
                   <div class="mdc-notched-outline">
                     <div class="mdc-notched-outline__leading"></div>
@@ -32,6 +45,7 @@
                     </div>
                     <div class="mdc-notched-outline__trailing"></div>
                   </div>
+
                 </div>
                 <button class="mdc-button mdc-button--raised" data-setting="blockedUsers">Add to ignored</button>
               </div>
@@ -40,7 +54,15 @@
           </div>
           <div class="mdc-card">
             <div class="mdc-card__primary-action">
-              <h2>Always Show Users</h2>
+              <h5 class="mdc-typography--headline5">Always Show Users</h5>
+              <div class="on3san-infobox">
+                <div class="on3san-infobox-icon">
+                  <span class="material-icons">
+                    block
+                    </span>
+                  </div>
+                <div class="on3san-infobox-text">on3 Sanifier will always show posts by the users listed below.</div>
+              </div>
               <div class="setting-container">
                 <div class="mdc-text-field mdc-text-field--outlined" id="alwaysShowUsers-input-container">
                   <input type="text" id="alwaysShowUsers-input" class="mdc-text-field__input">
@@ -59,7 +81,17 @@
           </div>
           <div class="mdc-card">
             <div class="mdc-card__primary-action">
-              <h2>Ignored Threads</h2>
+              <h5 class="mdc-typography--headline5">Ignored Threads</h5>
+              <div class="on3san-infobox">
+                <div class="on3san-infobox-icon">
+                  <span class="material-icons">
+                    comments_disabled
+                    </span>
+                  </div>
+                <div class="on3san-infobox-text">
+                  Ignored individual threads. If it's listed below, on3 Sanifier will not show it in thread listings.  
+                </div>
+              </div>
               <div class="setting-container">
                 <div class="mdc-text-field mdc-text-field--outlined" id="ignoredThreads-input-container">
                   <input type="text" id="ignoredThreads-input" class="mdc-text-field__input">
@@ -78,7 +110,21 @@
           </div>
           <div class="mdc-card">
             <div class="mdc-card__primary-action">
-              <h2>Ignored Keywords</h2>
+              <h5 class="mdc-typography--headline5">Ignored threads that contain</h5>
+              <div class="on3san-infobox">
+                <div class="on3san-infobox-icon">
+                  <span class="material-icons">
+                    filter_alt 
+                  </span>
+                </div>
+                <div class="on3san-infobox-text">
+                  If you add a string to this list, it will ignore threads that
+                  contain the string in the title. NOTE: It won't ignore threads
+                  that have the string in the one of the posts in the thread, it
+                  just looks at the title.
+                </div>
+              </div>
+
               <div class="setting-container">
                 <div class="mdc-text-field mdc-text-field--outlined" id="ignoredKeywords-input-container">
                   <input type="text" id="ignoredKeywords-input" class="mdc-text-field__input">
@@ -97,7 +143,18 @@
           </div>
           <div class="mdc-card">
             <div class="mdc-card__primary-action">
-              <h2>Favorite on3 Page</h2>
+              <h5 class="mdc-typography--headline5">Favorite on3 Page</h5>
+              <div class="on3san-infobox">
+                <div class="on3san-infobox-icon">
+                  <span class="material-icons">
+                    favorite
+                  </span>
+                </div>
+                <div class="on3san-infobox-text">
+                  Your favorite page on on3. It will make the button on the
+                  extension's popup open this page.
+                </div>
+              </div>
               <div class="setting-container">
                 <div class="mdc-text-field mdc-text-field--outlined" id="favoriteRivalsPage-input-container">
                   <input type="text" id="favoriteRivalsPage-input" class="mdc-text-field__input">

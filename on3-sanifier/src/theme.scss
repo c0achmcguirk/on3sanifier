@@ -2,17 +2,30 @@
   $primary: #e41c38
 );
 
-@use "@material/button/styles";
-@use "@material/textfield";
-@use "@material/floating-label";
-@use "@material/notched-outline";
-@use "@material/line-ripple";
-@use "@material/chips/styles" as chips-styles;
-@use "@material/icon-button/styles" as icon-button-styles;
-@use "@material/ripple";
-@use "@material/layout-grid/mdc-layout-grid";
-@use "@material/top-app-bar/mdc-top-app-bar";
+@use "@material/typography" with (
+  $styles-button: (
+    font-size: 16px,
+    text-transform: none,
+  )
+);
 
+@use "@material/button/styles";
+@use "@material/card";
+@use "@material/chips/styles" as chips-styles;
+@use "@material/floating-label";
+@use "@material/floating-label/mdc-floating-label";
+@use "@material/icon-button/styles" as icon-button-styles;
+@use "@material/layout-grid/mdc-layout-grid";
+@use "@material/line-ripple";
+@use "@material/line-ripple/mdc-line-ripple";
+@use "@material/notched-outline";
+@use "@material/notched-outline/mdc-notched-outline";
+@use "@material/ripple";
+@use "@material/textfield";
+@use "@material/top-app-bar/mdc-top-app-bar";
+@use "@material/typography/mdc-typography";
+
+@include card.core-styles;
 @include textfield.core-styles;
 @include floating-label.core-styles;
 @include notched-outline.core-styles;

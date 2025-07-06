@@ -21,3 +21,29 @@
 .on3san-main-bar {
   background-color: #fff;
 }
+
+.on3san-chip-delicon .mdc-evolution-chip__icon--trailing {
+  height: 22px;
+  padding-right: 8px;
+  color: #888;
+}
+
+.on3san-infobox {
+  align-items: center; /* This vertically aligns the icon and text */
+  background-color: #fafafa;
+  border-radius: 8px;
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.on3san-infobox-icon {
+  align-items: center; /* This vertically centers the icon */
+  display: flex;
+  justify-content: center; /* This horizontally centers the icon */
+  min-height: 50px;
+  width: 50px;
+}
+
+.on3san-infobox-text {
+  flex: 1; /* This allows the text box to take up the remaining space */
+}
