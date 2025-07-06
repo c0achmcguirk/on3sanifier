@@ -4,98 +4,121 @@
   <title>on3 Sanifier Options</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="theme.css">
-  <link rel="stylesheet" type="text/css" href="popup.css">
   <link rel="stylesheet" type="text/css" href="options.css">
 </head>
-<body>
-  <h1>on3 Sanifier Options</h1>
-  <div id="app">
-    <!-- Blocked Users -->
-    <h2>Blocked Users</h2>
-    <div class="setting-container">
-      <div class="mdc-text-field mdc-text-field--outlined" id="blockedUsers-input-container">
-        <input type="text" id="blockedUsers-input" class="mdc-text-field__input">
-        <div class="mdc-notched-outline">
-          <div class="mdc-notched-outline__leading"></div>
-          <div class="mdc-notched-outline__notch">
-            <label for="blockedUsers-input" class="mdc-floating-label">Add a user to block</label>
-          </div>
-          <div class="mdc-notched-outline__trailing"></div>
-        </div>
-      </div>
-      <button class="mdc-button mdc-button--raised" data-setting="blockedUsers">Add to ignored</button>
+<body class="mdc-typography">
+  <header class="mdc-top-app-bar">
+    <div class="mdc-top-app-bar__row">
+      <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+        <span class="mdc-top-app-bar__title">on3 Sanifier Options</span>
+      </section>
     </div>
-    <div class="mdc-evolution-chip-set" id="blockedUsers-chips"><span class="mdc-evolution-chip-set__chips" role="presentation"></span></div>
-
-    <!-- Always Show Users -->
-    <h2>Always Show Users</h2>
-    <div class="setting-container">
-      <div class="mdc-text-field mdc-text-field--outlined" id="alwaysShowUsers-input-container">
-        <input type="text" id="alwaysShowUsers-input" class="mdc-text-field__input">
-        <div class="mdc-notched-outline">
-          <div class="mdc-notched-outline__leading"></div>
-          <div class="mdc-notched-outline__notch">
-            <label for="alwaysShowUsers-input" class="mdc-floating-label">Add a user to always show</label>
+  </header>
+  <div class="mdc-top-app-bar--fixed-adjust">
+    <div class="mdc-layout-grid">
+      <div class="mdc-layout-grid__inner">
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-2 on3san-left-bar"></div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 on3san-main-bar">
+          <div class="mdc-card">
+            <div class="mdc-card__primary-action">
+              <h2>Blocked Users</h2>
+              <div class="setting-container">
+                <div class="mdc-text-field mdc-text-field--outlined" id="blockedUsers-input-container">
+                  <input type="text" id="blockedUsers-input" class="mdc-text-field__input">
+                  <div class="mdc-notched-outline">
+                    <div class="mdc-notched-outline__leading"></div>
+                    <div class="mdc-notched-outline__notch">
+                      <label for="blockedUsers-input" class="mdc-floating-label">Add a user to block</label>
+                    </div>
+                    <div class="mdc-notched-outline__trailing"></div>
+                  </div>
+                </div>
+                <button class="mdc-button mdc-button--raised" data-setting="blockedUsers">Add to ignored</button>
+              </div>
+              <div class="mdc-evolution-chip-set" id="blockedUsers-chips"><span class="mdc-evolution-chip-set__chips" role="presentation"></span></div>
+            </div>
           </div>
-          <div class="mdc-notched-outline__trailing"></div>
-        </div>
-      </div>
-      <button class="mdc-button mdc-button--raised" data-setting="alwaysShowUsers">Add to always show</button>
-    </div>
-    <div class="mdc-evolution-chip-set" id="alwaysShowUsers-chips"><span class="mdc-evolution-chip-set__chips" role="presentation"></span></div>
-
-    <!-- Ignored Threads -->
-    <h2>Ignored Threads</h2>
-    <div class="setting-container">
-      <div class="mdc-text-field mdc-text-field--outlined" id="ignoredThreads-input-container">
-        <input type="text" id="ignoredThreads-input" class="mdc-text-field__input">
-        <div class="mdc-notched-outline">
-          <div class="mdc-notched-outline__leading"></div>
-          <div class="mdc-notched-outline__notch">
-            <label for="ignoredThreads-input" class="mdc-floating-label">Add a thread to ignore</label>
+          <div class="mdc-card">
+            <div class="mdc-card__primary-action">
+              <h2>Always Show Users</h2>
+              <div class="setting-container">
+                <div class="mdc-text-field mdc-text-field--outlined" id="alwaysShowUsers-input-container">
+                  <input type="text" id="alwaysShowUsers-input" class="mdc-text-field__input">
+                  <div class="mdc-notched-outline">
+                    <div class="mdc-notched-outline__leading"></div>
+                    <div class="mdc-notched-outline__notch">
+                      <label for="alwaysShowUsers-input" class="mdc-floating-label">Add a user to always show</label>
+                    </div>
+                    <div class="mdc-notched-outline__trailing"></div>
+                  </div>
+                </div>
+                <button class="mdc-button mdc-button--raised" data-setting="alwaysShowUsers">Add to always show</button>
+              </div>
+              <div class="mdc-evolution-chip-set" id="alwaysShowUsers-chips"><span class="mdc-evolution-chip-set__chips" role="presentation"></span></div>
+            </div>
           </div>
-          <div class="mdc-notched-outline__trailing"></div>
-        </div>
-      </div>
-      <button class="mdc-button mdc-button--raised" data-setting="ignoredThreads">Add to ignored</button>
-    </div>
-    <div class="mdc-evolution-chip-set" id="ignoredThreads-chips"><span class="mdc-evolution-chip-set__chips" role="presentation"></span></div>
-
-    <!-- Ignored Keywords -->
-    <h2>Ignored Keywords</h2>
-    <div class="setting-container">
-      <div class="mdc-text-field mdc-text-field--outlined" id="ignoredKeywords-input-container">
-        <input type="text" id="ignoredKeywords-input" class="mdc-text-field__input">
-        <div class="mdc-notched-outline">
-          <div class="mdc-notched-outline__leading"></div>
-          <div class="mdc-notched-outline__notch">
-            <label for="ignoredKeywords-input" class="mdc-floating-label">Add a keyword to ignore</label>
+          <div class="mdc-card">
+            <div class="mdc-card__primary-action">
+              <h2>Ignored Threads</h2>
+              <div class="setting-container">
+                <div class="mdc-text-field mdc-text-field--outlined" id="ignoredThreads-input-container">
+                  <input type="text" id="ignoredThreads-input" class="mdc-text-field__input">
+                  <div class="mdc-notched-outline">
+                    <div class="mdc-notched-outline__leading"></div>
+                    <div class="mdc-notched-outline__notch">
+                      <label for="ignoredThreads-input" class="mdc-floating-label">Add a thread to ignore</label>
+                    </div>
+                    <div class="mdc-notched-outline__trailing"></div>
+                  </div>
+                </div>
+                <button class="mdc-button mdc-button--raised" data-setting="ignoredThreads">Add to ignored</button>
+              </div>
+              <div class="mdc-evolution-chip-set" id="ignoredThreads-chips"><span class="mdc-evolution-chip-set__chips" role="presentation"></span></div>
+            </div>
           </div>
-          <div class="mdc-notched-outline__trailing"></div>
-        </div>
-      </div>
-      <button class="mdc-button mdc-button--raised" data-setting="ignoredKeywords">Add to ignored</button>
-    </div>
-    <div class="mdc-evolution-chip-set" id="ignoredKeywords-chips"><span class="mdc-evolution-chip-set__chips" role="presentation"></span></div>
-
-    <!-- Favorite on3 Page -->
-    <h2>Favorite on3 Page</h2>
-    <div class="setting-container">
-      <div class="mdc-text-field mdc-text-field--outlined" id="favoriteRivalsPage-input-container">
-        <input type="text" id="favoriteRivalsPage-input" class="mdc-text-field__input">
-        <div class="mdc-notched-outline">
-          <div class="mdc-notched-outline__leading"></div>
-          <div class="mdc-notched-outline__notch">
-            <label for="favoriteRivalsPage-input" class="mdc-floating-label">Favorite on3 Page URL</label>
+          <div class="mdc-card">
+            <div class="mdc-card__primary-action">
+              <h2>Ignored Keywords</h2>
+              <div class="setting-container">
+                <div class="mdc-text-field mdc-text-field--outlined" id="ignoredKeywords-input-container">
+                  <input type="text" id="ignoredKeywords-input" class="mdc-text-field__input">
+                  <div class="mdc-notched-outline">
+                    <div class="mdc-notched-outline__leading"></div>
+                    <div class="mdc-notched-outline__notch">
+                      <label for="ignoredKeywords-input" class="mdc-floating-label">Add a keyword to ignore</label>
+                    </div>
+                    <div class="mdc-notched-outline__trailing"></div>
+                  </div>
+                </div>
+                <button class="mdc-button mdc-button--raised" data-setting="ignoredKeywords">Add to ignored</button>
+              </div>
+              <div class="mdc-evolution-chip-set" id="ignoredKeywords-chips"><span class="mdc-evolution-chip-set__chips" role="presentation"></span></div>
+            </div>
           </div>
-          <div class="mdc-notched-outline__trailing"></div>
+          <div class="mdc-card">
+            <div class="mdc-card__primary-action">
+              <h2>Favorite on3 Page</h2>
+              <div class="setting-container">
+                <div class="mdc-text-field mdc-text-field--outlined" id="favoriteRivalsPage-input-container">
+                  <input type="text" id="favoriteRivalsPage-input" class="mdc-text-field__input">
+                  <div class="mdc-notched-outline">
+                    <div class="mdc-notched-outline__leading"></div>
+                    <div class="mdc-notched-outline__notch">
+                      <label for="favoriteRivalsPage-input" class="mdc-floating-label">Favorite on3 Page URL</label>
+                    </div>
+                    <div class="mdc-notched-outline__trailing"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="mdc-button mdc-button--raised" id="save">
+            <span class="mdc-button__label">Save All Settings</span>
+          </button>
         </div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-2 on3san-right-bar"></div>
       </div>
     </div>
-
-    <button class="mdc-button mdc-button--raised" id="save">
-      <span class="mdc-button__label">Save All Settings</span>
-    </button>
   </div>
   <div id="toast">Settings saved!</div>
   <script src="js/options.js"></script>

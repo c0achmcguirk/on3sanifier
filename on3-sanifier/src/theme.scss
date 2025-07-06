@@ -10,9 +10,12 @@
 @use "@material/chips/styles" as chips-styles;
 @use "@material/icon-button/styles" as icon-button-styles;
 @use "@material/ripple";
+@use "@material/layout-grid/mdc-layout-grid";
+@use "@material/top-app-bar/mdc-top-app-bar";
 
 @include textfield.core-styles;
 @include floating-label.core-styles;
 @include notched-outline.core-styles;
 @include line-ripple.core-styles;
 @include ripple.core-styles;
+

@@ -1,8 +1,14 @@
+import { MDCTopAppBar } from '@material/top-app-bar';
 import { MDCTextField } from '@material/textfield';
 import { MDCRipple } from '@material/ripple';
 import { MDCChipSet } from '@material/chips';
 
 document.addEventListener('DOMContentLoaded', () => {
+  const topAppBarElement = document.querySelector('.mdc-top-app-bar');
+  if (topAppBarElement) {
+    const topAppBar = new MDCTopAppBar(topAppBarElement);
+  }
+
   const settings = ['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoredKeywords'];
 
   const createChip = (text: string) => {
@@ -30,6 +36,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById(`${setting}-input`) as HTMLInputElement;
     const addButton = document.querySelector(`button[data-setting="${setting}"]`) as HTMLElement;
     const chipSetEl = document.getElementById(`${setting}-chips`) as HTMLElement;
+
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        addButton.click();
+      }
+    });
 
     addButton.addEventListener('click', () => {
       if (input.value) {
@@ -65,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const chipSetEl = document.getElementById(`${setting}-chips`) as HTMLElement;
       values.forEach((value: string) => {
         const chipEl = createChip(value);
-        chipSetEl.appendChild(chipEl);
+        chipSetEl.querySelector('.mdc-evolution-chip-set__chips')?.appendChild(chipEl);
       });
     });
     (document.getElementById('favoriteRivalsPage-input') as HTMLInputElement).value = loadedSettings.favoriteRivalsPage || '';

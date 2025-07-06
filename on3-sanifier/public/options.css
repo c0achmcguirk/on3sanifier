@@ -1,4 +1,23 @@
-.mdc-evolution-chip__icon--trailing {
-  padding-bottom: 4px;
-  padding-right: 9px;
+.mdc-card {
+  margin-bottom: 16px;
+  padding: 16px;
+}
+
+.setting-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.setting-container .mdc-text-field {
+  flex-grow: 1;
+  margin-right: 16px;
+}
+
+.on3san-left-bar, .on3san-right-bar {
+  background-color: #cacaca;
+}
+
+.on3san-main-bar {
+  background-color: #fff;
 }
