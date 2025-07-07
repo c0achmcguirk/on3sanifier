@@ -108,9 +108,49 @@ function filterContent(): void {
   });
 }
 
+function colorCodePostsByReactions(): void {
+  document.querySelectorAll<HTMLElement>('article.message').forEach(post => {
+    const reactionsBarLink = post.querySelector<HTMLAnchorElement>('.reactionsBar-link');
+    if (reactionsBarLink) {
+      const linkText = reactionsBarLink.textContent || '';
+      let reactionCount = 0;
+
+      const andOthersMatch = linkText.match(/and (\d+) others/);
+      if (andOthersMatch) {
+        const othersCount = parseInt(andOthersMatch[1], 10);
+        const names = linkText.split(' and ')[0];
+        const nameCount = (names.match(/,/g) || []).length + 1;
+        reactionCount = nameCount + othersCount;
+      } else if (linkText.includes(',')) {
+        reactionCount = (linkText.match(/,/g) || []).length + 1;
+      } else if (linkText.trim() !== '') {
+        if (linkText.includes(' and ')) {
+            reactionCount = 2;
+        } else {
+            reactionCount = 1;
+        }
+      }
+
+      let backgroundColor = '';
+      if (reactionCount >= 16) {
+        backgroundColor = '#efcb3e';
+      } else if (reactionCount >= 10) {
+        backgroundColor = '#f6dc76';
+      } else if (reactionCount >= 5) {
+        backgroundColor = '#faeaab';
+      }
+
+      if (backgroundColor) {
+        post.style.backgroundColor = backgroundColor;
+      }
+    }
+  });
+}
+
 function runSanifier(): void {
   filterContent();
   injectCustomDivs();
+  colorCodePostsByReactions();
 }
 
 // Run the filter when the page loads.
