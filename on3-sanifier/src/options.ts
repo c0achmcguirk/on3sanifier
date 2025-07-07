@@ -2,6 +2,7 @@ import { MDCTopAppBar } from '@material/top-app-bar';
 import { MDCTextField } from '@material/textfield';
 import { MDCRipple } from '@material/ripple';
 import { MDCChipSet } from '@material/chips';
+import { MDCSlider } from '@material/slider';
 
 document.addEventListener('DOMContentLoaded', () => {
   const topAppBarElement = document.querySelector('.mdc-top-app-bar');
@@ -9,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const topAppBar = new MDCTopAppBar(topAppBarElement);
   }
 
-  const settings = ['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoredKeywords'];
+  const settings = ['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoreThreadsContaining', 'ratingThreshold'];
 
   const createChip = (text: string) => {
     const chipEl = document.createElement('div');
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   settings.forEach(setting => {
+    if (setting === 'ratingThreshold') return;
     const input = document.getElementById(`${setting}-input`) as HTMLInputElement;
     const addButton = document.querySelector(`button[data-setting="${setting}"]`) as HTMLElement;
     const chipSetEl = document.getElementById(`${setting}-chips`) as HTMLElement;
@@ -67,6 +69,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveButton = document.getElementById('save') as HTMLElement;
   new MDCRipple(saveButton);
 
+  const ratingThresholdSliderElement = document.getElementById('ratingThreshold');
+  const ratingValue = document.getElementById('ratingValue') as HTMLElement;
+  let ratingThresholdSlider: MDCSlider | undefined;
+  if (ratingThresholdSliderElement) {
+    ratingThresholdSlider = new MDCSlider(ratingThresholdSliderElement);
+    ratingThresholdSlider.listen('MDCSlider:input', () => {
+      ratingValue.textContent = ratingThresholdSlider?.getValue().toString() || '0';
+    });
+  }
+
+
   // Load settings from storage and display them
   chrome.storage.sync.get([...settings, 'favoriteRivalsPage'], (result) => {
     if (chrome.runtime.lastError) {
@@ -75,6 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const loadedSettings = result || {};
     settings.forEach(setting => {
+      if (setting === 'ratingThreshold') {
+        const value = loadedSettings[setting] || 0;
+        if (ratingThresholdSlider) {
+          ratingThresholdSlider.setValue(value);
+        }
+        ratingValue.textContent = value.toString();
+        return;
+      }
       const values = loadedSettings[setting] || [];
       const chipSetEl = document.getElementById(`${setting}-chips`) as HTMLElement;
       values.forEach((value: string) => {
@@ -88,6 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
   saveButton.addEventListener('click', () => {
     const newSettings: { [key: string]: any } = {};
     settings.forEach(setting => {
+      if (setting === 'ratingThreshold') {
+        newSettings[setting] = ratingThresholdSlider?.getValue() || 0;
+        return;
+      }
       const chipSetEl = document.getElementById(`${setting}-chips`) as HTMLElement;
       const chips = Array.from(chipSetEl.querySelectorAll('.mdc-evolution-chip__text-label')).map(el => el.textContent || '').filter(Boolean);
       newSettings[setting] = chips;

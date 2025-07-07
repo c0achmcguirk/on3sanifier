@@ -13,12 +13,10 @@
 
 import { MDCRipple } from '@material/ripple';
 
-// ... (rest of the file is the same until injectCustomDivs)
-
 function injectCustomDivs(): void {
   const targetDivs = document.querySelectorAll('.block-outer');
   targetDivs.forEach(targetDiv => {
-    // Check if our div already exists to avoid duplicates
+    // Check if our div already exists to avoid duplicates.
     if (!targetDiv.previousElementSibling || !targetDiv.previousElementSibling.classList.contains('on3san-toolbar')) {
       const newDiv = document.createElement('div');
       newDiv.className = 'on3san-toolbar';
@@ -43,12 +41,10 @@ function injectCustomDivs(): void {
   });
 }
 
-// ... (rest of the file is the same)
-
 
 // Function to filter posts and threads based on user settings.
 function filterContent(): void {
-  chrome.storage.sync.get(['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoredKeywords'], (settings) => {
+  chrome.storage.sync.get(['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoreThreadsContaining'], (settings) => {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError);
       return;
@@ -57,7 +53,7 @@ function filterContent(): void {
       blockedUsers = [],
       alwaysShowUsers = [],
       ignoredThreads = [],
-      ignoredKeywords = []
+      ignoreThreadsContaining = []
     } = settings;
 
     // Filter posts by author.
@@ -65,8 +61,8 @@ function filterContent(): void {
       const author = post.dataset.author?.toLowerCase();
       if (!author) return;
 
-      const lowercasedBlockedUsers = blockedUsers.map(u => u.toLowerCase());
-      const lowercasedAlwaysShowUsers = alwaysShowUsers.map(u => u.toLowerCase());
+      const lowercasedBlockedUsers = blockedUsers.map((u: string) => u.toLowerCase());
+      const lowercasedAlwaysShowUsers = alwaysShowUsers.map((u: string) => u.toLowerCase());
 
       if (lowercasedBlockedUsers.includes(author)) {
         post.classList.add('on3-sanifier-hidden-post');
@@ -93,8 +89,8 @@ function filterContent(): void {
           }
         }
 
-        if (!shouldHide && ignoredKeywords.length > 0) {
-          for (const keyword of ignoredKeywords) {
+        if (!shouldHide && ignoreThreadsContaining.length > 0) {
+          for (const keyword of ignoreThreadsContaining) {
             if (title.includes(keyword.toLowerCase())) {
               shouldHide = true;
               break;

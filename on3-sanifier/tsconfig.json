@@ -8,5 +8,6 @@
     "moduleResolution": "node",
     "allowArbitraryExtensions": true
   },
-  "include": ["src/**/*.ts", "src/options.ts"]
+  "include": ["src/**/*.ts", "src/options.ts"],
+  "exclude": ["**/*_test.ts"]
 }

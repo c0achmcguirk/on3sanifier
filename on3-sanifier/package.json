@@ -5,7 +5,8 @@
   "main": "dist/background.js",
   "scripts": {
     "build": "node scripts/build.js",
-    "watch": "node scripts/build.js --watch"
+    "watch": "node scripts/build.js --watch",
+    "test": "esbuild src/lib/helpers_test.ts --bundle --outfile=dist-test/bundle.test.js --tsconfig=tsconfig.json && karma start karma.conf.js"
   },
   "keywords": [],
   "author": "",

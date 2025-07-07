@@ -47,3 +47,7 @@
 .on3san-infobox-text {
   flex: 1; /* This allows the text box to take up the remaining space */
 }
+
+.rating-label {
+  margin-left: 16px;
+}

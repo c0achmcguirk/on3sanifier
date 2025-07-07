@@ -22,6 +22,47 @@
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 on3san-main-bar">
           <div class="mdc-card">
             <div class="mdc-card__primary-action">
+              <h5 class="mdc-typography--headline5">Rating Threshold</h5>
+              <div class="on3san-infobox">
+                <div class="on3san-infobox-icon">
+                  <span class="material-icons">
+                    star_rate
+                    </span>
+                  </div>
+                <div class="on3san-infobox-text">
+                  The rating threshold controls which posts are showing on the
+                  screen. The higher the number, the fewer posts that will be
+                  shown. on3 Sanifier will hide any posts that have fewer
+                  upvotes than the rating threshold you choose below.
+                </div>
+              </div>
+              <div class="setting-container">
+                <div id="ratingThreshold" class="mdc-slider mdc-slider--discrete">
+                  <input class="mdc-slider__input" type="range" min="0" max="10" value="0" step="1" name="rating-threshold" aria-label="Rating Threshold">
+                  <div class="mdc-slider__track">
+                    <div class="mdc-slider__track--inactive"></div>
+                    <div class="mdc-slider__track--active">
+                      <div class="mdc-slider__track--active_fill"></div>
+                    </div>
+                  </div>
+                  <div class="mdc-slider__thumb">
+                    <div class="mdc-slider__value-indicator-container" aria-hidden="true">
+                      <div class="mdc-slider__value-indicator">
+                        <span class="mdc-slider__value-indicator-text">
+                        </span>
+                      </div>
+                    </div>
+                    <div class="mdc-slider__thumb-knob"></div>
+                  </div>
+                </div>
+                <h5 id="ratingValue" class="rating-label">0</h5>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="mdc-card">
+            <div class="mdc-card__primary-action">
               <h5 class="mdc-typography--headline5">Blocked Users</h5>
               <div class="on3san-infobox">
                 <div class="on3san-infobox-icon">
@@ -126,19 +167,19 @@
               </div>
 
               <div class="setting-container">
-                <div class="mdc-text-field mdc-text-field--outlined" id="ignoredKeywords-input-container">
-                  <input type="text" id="ignoredKeywords-input" class="mdc-text-field__input">
+                <div class="mdc-text-field mdc-text-field--outlined" id="ignoreThreadsContaining-input-container">
+                  <input type="text" id="ignoreThreadsContaining-input" class="mdc-text-field__input">
                   <div class="mdc-notched-outline">
                     <div class="mdc-notched-outline__leading"></div>
                     <div class="mdc-notched-outline__notch">
-                      <label for="ignoredKeywords-input" class="mdc-floating-label">Add a keyword to ignore</label>
+                      <label for="ignoreThreadsContaining-input" class="mdc-floating-label">Add a keyword to ignore</label>
                     </div>
                     <div class="mdc-notched-outline__trailing"></div>
                   </div>
                 </div>
-                <button class="mdc-button mdc-button--raised" data-setting="ignoredKeywords">Add to ignored</button>
+                <button class="mdc-button mdc-button--raised" data-setting="ignoreThreadsContaining">Add to ignored</button>
               </div>
-              <div class="mdc-evolution-chip-set" id="ignoredKeywords-chips"><span class="mdc-evolution-chip-set__chips" role="presentation"></span></div>
+              <div class="mdc-evolution-chip-set" id="ignoreThreadsContaining-chips"><span class="mdc-evolution-chip-set__chips" role="presentation"></span></div>
             </div>
           </div>
           <div class="mdc-card">
@@ -149,7 +190,7 @@
                   <span class="material-icons">
                     favorite
                   </span>
-                </div>
+                  </div>
                 <div class="on3san-infobox-text">
                   Your favorite page on on3. It will make the button on the
                   extension's popup open this page.

@@ -42,7 +42,7 @@
         "js/*.js",
         "images/*.png"
       ],
-      "matches": ["<all_urls>"]
+      "matches": ["*://*.on3.com/*"]
     }
   ],
   "content_security_policy": {
