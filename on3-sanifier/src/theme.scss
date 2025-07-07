@@ -24,6 +24,7 @@
 @use "@material/textfield";
 @use "@material/top-app-bar/mdc-top-app-bar";
 @use "@material/typography/mdc-typography";
+@use '@material/switch/styles' as switch-styles;
 
 @include card.core-styles;
 @include textfield.core-styles;

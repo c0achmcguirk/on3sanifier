@@ -1,16 +1,3 @@
-// Inject CSS to hide threads.
-(async () => {
-  try {
-    const response = await fetch(chrome.runtime.getURL('dist/site-style.css'));
-    const css = await response.text();
-    const style = document.createElement('style');
-    style.textContent = css;
-    document.head.appendChild(style);
-  } catch (error) {
-    console.error('on3 Sanifier: Error injecting CSS', error);
-  }
-})();
-
 import { MDCRipple } from '@material/ripple';
 
 function injectCustomDivs(): void {
@@ -42,18 +29,52 @@ function injectCustomDivs(): void {
 }
 
 
+function getReactionCount(post: HTMLElement): number {
+  const reactionsBarLink = post.querySelector<HTMLAnchorElement>('.reactionsBar-link');
+  if (!reactionsBarLink) {
+    return 0;
+  }
+
+  const linkHtml = reactionsBarLink.innerHTML;
+
+  // Count the number of named users by counting the <bdi> tags.
+  const bdiCount = (linkHtml.match(/<bdi>/g) || []).length;
+
+  // Check for the "and X others" pattern to get the count of unnamed users.
+  const andOthersMatch = linkHtml.match(/and (\d+) others/);
+  const othersCount = andOthersMatch ? parseInt(andOthersMatch[1], 10) : 0;
+
+  // If there are no <bdi> tags and no "others", but the link exists,
+  // it means there is a single user.
+  if (bdiCount === 0 && othersCount === 0 && reactionsBarLink.textContent?.trim()) {
+    return 1;
+  }
+
+  return bdiCount + othersCount;
+}
+
+let debugMode = false;
+
+function log(message: string) {
+  if (debugMode) {
+    console.log(`on3 Sanifier: ${message}`);
+  }
+}
+
 // Function to filter posts and threads based on user settings.
 function filterContent(): void {
-  chrome.storage.sync.get(['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoreThreadsContaining'], (settings) => {
+  chrome.storage.sync.get(['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoreThreadsContaining', 'ratingThreshold', 'debugMode'], (settings) => {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError);
       return;
     }
+    debugMode = settings.debugMode || false;
     const {
       blockedUsers = [],
       alwaysShowUsers = [],
       ignoredThreads = [],
-      ignoreThreadsContaining = []
+      ignoreThreadsContaining = [],
+      ratingThreshold = 0
     } = settings;
 
     // Filter posts by author.
@@ -65,9 +86,17 @@ function filterContent(): void {
       const lowercasedAlwaysShowUsers = alwaysShowUsers.map((u: string) => u.toLowerCase());
 
       if (lowercasedBlockedUsers.includes(author)) {
+        log(`Hiding post by ${author} because they are in the blocked user list.`);
         post.classList.add('on3-sanifier-hidden-post');
       } else if (lowercasedAlwaysShowUsers.includes(author)) {
+        log(`Showing post by ${author} because they are in the always show user list.`);
         post.classList.remove('on3-sanifier-hidden-post');
+      }
+
+      const reactionCount = getReactionCount(post);
+      if (reactionCount < ratingThreshold) {
+        log(`Hiding post by ${author} because it has ${reactionCount} reactions and the rating threshold is ${ratingThreshold}.`);
+        post.classList.add('on3-sanifier-hidden-post');
       }
     });
 
@@ -110,40 +139,17 @@ function filterContent(): void {
 
 function colorCodePostsByReactions(): void {
   document.querySelectorAll<HTMLElement>('article.message').forEach(post => {
-    const reactionsBarLink = post.querySelector<HTMLAnchorElement>('.reactionsBar-link');
-    if (reactionsBarLink) {
-      const linkText = reactionsBarLink.textContent || '';
-      let reactionCount = 0;
-
-      const andOthersMatch = linkText.match(/and (\d+) others/);
-      if (andOthersMatch) {
-        const othersCount = parseInt(andOthersMatch[1], 10);
-        const names = linkText.split(' and ')[0];
-        const nameCount = (names.match(/,/g) || []).length + 1;
-        reactionCount = nameCount + othersCount;
-      } else if (linkText.includes(',')) {
-        reactionCount = (linkText.match(/,/g) || []).length + 1;
-      } else if (linkText.trim() !== '') {
-        if (linkText.includes(' and ')) {
-            reactionCount = 2;
-        } else {
-            reactionCount = 1;
-        }
-      }
-
-      let backgroundColor = '';
-      if (reactionCount >= 16) {
-        backgroundColor = '#efcb3e';
-      } else if (reactionCount >= 10) {
-        backgroundColor = '#f6dc76';
-      } else if (reactionCount >= 5) {
-        backgroundColor = '#faeaab';
-      }
-
-      if (backgroundColor) {
-        post.style.backgroundColor = backgroundColor;
-      }
+    const reactionCount = getReactionCount(post);
+    let backgroundColor = '';
+    if (reactionCount >= 16) {
+      backgroundColor = '#efcb3e';
+    } else if (reactionCount >= 10) {
+      backgroundColor = '#f6dc76';
+    } else if (reactionCount >= 5) {
+      backgroundColor = '#faeaab';
     }
+
+    post.style.backgroundColor = backgroundColor;
   });
 }
 

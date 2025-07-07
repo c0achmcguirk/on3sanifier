@@ -1,3 +1,4 @@
+import { MDCSwitch } from '@material/switch';
 import { MDCTopAppBar } from '@material/top-app-bar';
 import { MDCTextField } from '@material/textfield';
 import { MDCRipple } from '@material/ripple';
@@ -80,13 +81,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
+  const debugModeSwitchElement = document.querySelector('.mdc-switch');
+  let debugModeSwitch: MDCSwitch | undefined;
+  if (debugModeSwitchElement) {
+    debugModeSwitch = new MDCSwitch(debugModeSwitchElement);
+  }
+
   // Load settings from storage and display them
-  chrome.storage.sync.get([...settings, 'favoriteRivalsPage'], (result) => {
+  chrome.storage.sync.get([...settings, 'favoriteRivalsPage', 'debugMode'], (result) => {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError);
       return;
     }
     const loadedSettings = result || {};
+    debugger;
+    if (debugModeSwitch) {
+      debugModeSwitch.selected = loadedSettings.debugMode || false;
+    }
     settings.forEach(setting => {
       if (setting === 'ratingThreshold') {
         const value = loadedSettings[setting] || 0;
@@ -108,6 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   saveButton.addEventListener('click', () => {
     const newSettings: { [key: string]: any } = {};
+    debugger;
+    newSettings.debugMode = debugModeSwitch?.selected || false;
     settings.forEach(setting => {
       if (setting === 'ratingThreshold') {
         newSettings[setting] = ratingThresholdSlider?.getValue() || 0;
