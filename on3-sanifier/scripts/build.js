@@ -21,7 +21,7 @@ async function build() {
       path.join(srcDir, 'popup.ts'),
       path.join(srcDir, 'options.ts'),
       path.join(srcDir, 'content.ts'),
-      path.join(srcDir, 'background.ts')
+      path.join(srcDir, 'background.ts'),
     ],
     bundle: true,
     outdir: path.join(distDir, 'js'),
@@ -29,19 +29,24 @@ async function build() {
 
   // Compile Sass
   const sassResult = sass.compile(path.join(srcDir, 'theme.scss'), {
-    loadPaths: [nodeModulesDir]
+    loadPaths: [nodeModulesDir],
   });
   await fs.writeFile(path.join(distDir, 'theme.css'), sassResult.css);
 
   // Copy static assets
   await fs.copy(publicDir, distDir);
-  await fs.copy(path.join(srcDir, 'site-style.css'), path.join(distDir, 'site-style.css'));
+  await fs.copy(
+    path.join(srcDir, 'site-style.css'),
+    path.join(distDir, 'site-style.css'),
+  );
 
   // Prepare and copy manifest
   const manifestPath = path.join(__dirname, '../manifest.json');
   const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf-8'));
   // Add any browser-specific modifications here if needed
-  await fs.writeJson(path.join(distDir, 'manifest.json'), manifest, { spaces: 2 });
+  await fs.writeJson(path.join(distDir, 'manifest.json'), manifest, {
+    spaces: 2,
+  });
 
   if (isWatch) {
     await ctx.watch();
@@ -55,6 +60,5 @@ async function build() {
 
 build().catch(err => {
   console.error(err);
-  process.exit(1);
+  throw err;
 });
-

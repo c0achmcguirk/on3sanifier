@@ -1,4 +1,5 @@
 {
+  "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
     "target": "es6",
     "module": "ES2015",
@@ -8,6 +9,13 @@
     "moduleResolution": "node",
     "allowArbitraryExtensions": true
   },
-  "include": ["src/**/*.ts", "src/options.ts"],
-  "exclude": ["**/*_test.ts"]
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "dist-test"
+  ]
 }

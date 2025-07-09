@@ -6,7 +6,10 @@
   "scripts": {
     "build": "node scripts/build.js",
     "watch": "node scripts/build.js --watch",
-    "test": "esbuild src/lib/helpers_test.ts --bundle --outfile=dist-test/bundle.test.js --tsconfig=tsconfig.json && karma start karma.conf.js"
+    "test": "esbuild src/lib/helpers_test.ts --bundle --outfile=dist-test/bundle.test.js --tsconfig=tsconfig.json && karma start karma.conf.js",
+    "lint": "gts lint",
+    "fix": "gts fix",
+    "clean": "gts clean"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +18,7 @@
     "@types/chrome": "^0.0.268",
     "esbuild": "^0.25.5",
     "fs-extra": "^11.3.0",
+    "gts": "^6.0.2",
     "rimraf": "^6.0.1",
     "sass": "^1.89.2",
     "typescript": "^5.4.5"
@@ -26,6 +30,9 @@
     "@material/icon-button": "^14.0.0",
     "@material/layout-grid": "^14.0.0",
     "@material/ripple": "^14.0.0",
+    "@material/slider": "^14.0.0",
+    "@material/snackbar": "^14.0.0",
+    "@material/switch": "^14.0.0",
     "@material/textfield": "^14.0.0",
     "@material/top-app-bar": "^14.0.0",
     "material-components-web": "^14.0.0"

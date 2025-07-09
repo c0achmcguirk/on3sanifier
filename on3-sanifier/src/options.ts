@@ -1,18 +1,23 @@
-import { MDCSnackbar } from '@material/snackbar';
-import { MDCSwitch } from '@material/switch';
-import { MDCTopAppBar } from '@material/top-app-bar';
-import { MDCTextField } from '@material/textfield';
-import { MDCRipple } from '@material/ripple';
-import { MDCChipSet } from '@material/chips';
-import { MDCSlider } from '@material/slider';
+import {MDCSnackbar} from '@material/snackbar';
+import {MDCSwitch} from '@material/switch';
+import {MDCTopAppBar} from '@material/top-app-bar';
+import {MDCTextField} from '@material/textfield';
+import {MDCRipple} from '@material/ripple';
+import {MDCSlider} from '@material/slider';
 
 document.addEventListener('DOMContentLoaded', () => {
   const topAppBarElement = document.querySelector('.mdc-top-app-bar');
   if (topAppBarElement) {
-    const topAppBar = new MDCTopAppBar(topAppBarElement);
+    new MDCTopAppBar(topAppBarElement);
   }
 
-  const settings = ['blockedUsers', 'alwaysShowUsers', 'ignoredThreads', 'ignoreThreadsContaining', 'ratingThreshold'];
+  const settings = [
+    'blockedUsers',
+    'alwaysShowUsers',
+    'ignoredThreads',
+    'ignoreThreadsContaining',
+    'ratingThreshold',
+  ];
 
   const createChip = (text: string) => {
     const chipEl = document.createElement('div');
@@ -38,11 +43,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   settings.forEach(setting => {
     if (setting === 'ratingThreshold') return;
-    const input = document.getElementById(`${setting}-input`) as HTMLInputElement;
-    const addButton = document.querySelector(`button[data-setting="${setting}"]`) as HTMLElement;
-    const chipSetEl = document.getElementById(`${setting}-chips`) as HTMLElement;
+    const input = document.getElementById(
+      `${setting}-input`,
+    ) as HTMLInputElement;
+    const addButton = document.querySelector(
+      `button[data-setting="${setting}"]`,
+    ) as HTMLElement;
+    const chipSetEl = document.getElementById(
+      `${setting}-chips`,
+    ) as HTMLElement;
 
-    input.addEventListener('keydown', (event) => {
+    input.addEventListener('keydown', event => {
       if (event.key === 'Enter') {
         event.preventDefault();
         addButton.click();
@@ -52,12 +63,14 @@ document.addEventListener('DOMContentLoaded', () => {
     addButton.addEventListener('click', () => {
       if (input.value) {
         const chipEl = createChip(input.value);
-        chipSetEl.querySelector('.mdc-evolution-chip-set__chips')?.appendChild(chipEl);
+        chipSetEl
+          .querySelector('.mdc-evolution-chip-set__chips')
+          ?.appendChild(chipEl);
         input.value = '';
       }
     });
 
-    chipSetEl.addEventListener('click', (event) => {
+    chipSetEl.addEventListener('click', event => {
       const target = event.target as HTMLElement;
       if (target.closest('[data-mdc-deletable="true"]')) {
         const chipEl = target.closest('.mdc-evolution-chip');
@@ -71,16 +84,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveButton = document.getElementById('save') as HTMLElement;
   new MDCRipple(saveButton);
 
-  const ratingThresholdSliderElement = document.getElementById('ratingThreshold');
+  const ratingThresholdSliderElement =
+    document.getElementById('ratingThreshold');
   const ratingValue = document.getElementById('ratingValue') as HTMLElement;
   let ratingThresholdSlider: MDCSlider | undefined;
   if (ratingThresholdSliderElement) {
     ratingThresholdSlider = new MDCSlider(ratingThresholdSliderElement);
     ratingThresholdSlider.listen('MDCSlider:input', () => {
-      ratingValue.textContent = ratingThresholdSlider?.getValue().toString() || '0';
+      ratingValue.textContent =
+        ratingThresholdSlider?.getValue().toString() || '0';
     });
   }
-
 
   const debugModeSwitchElement = document.querySelector('.mdc-switch');
   let debugModeSwitch: MDCSwitch | undefined;
@@ -89,54 +103,70 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Load settings from storage and display them
-  chrome.storage.sync.get([...settings, 'favoriteRivalsPage', 'debugMode'], (result) => {
-    if (chrome.runtime.lastError) {
-      console.error(chrome.runtime.lastError);
-      return;
-    }
-    const loadedSettings = result || {};
-    if (debugModeSwitch) {
-      debugModeSwitch.selected = loadedSettings.debugMode || false;
-    }
-    settings.forEach(setting => {
-      if (setting === 'ratingThreshold') {
-        const value = loadedSettings[setting] || 0;
-        if (ratingThresholdSlider) {
-          ratingThresholdSlider.setValue(value);
-        }
-        ratingValue.textContent = value.toString();
+  chrome.storage.sync.get(
+    [...settings, 'favoriteRivalsPage', 'debugMode'],
+    result => {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError);
         return;
       }
-      const values = loadedSettings[setting] || [];
-      const chipSetEl = document.getElementById(`${setting}-chips`) as HTMLElement;
-      values.forEach((value: string) => {
-        const chipEl = createChip(value);
-        chipSetEl.querySelector('.mdc-evolution-chip-set__chips')?.appendChild(chipEl);
+      const loadedSettings = result || {};
+      if (debugModeSwitch) {
+        debugModeSwitch.selected = loadedSettings.debugMode || false;
+      }
+      settings.forEach(setting => {
+        if (setting === 'ratingThreshold') {
+          const value = loadedSettings[setting] || 0;
+          if (ratingThresholdSlider) {
+            ratingThresholdSlider.setValue(value);
+          }
+          ratingValue.textContent = value.toString();
+          return;
+        }
+        const values = loadedSettings[setting] || [];
+        const chipSetEl = document.getElementById(
+          `${setting}-chips`,
+        ) as HTMLElement;
+        values.forEach((value: string) => {
+          const chipEl = createChip(value);
+          chipSetEl
+            .querySelector('.mdc-evolution-chip-set__chips')
+            ?.appendChild(chipEl);
+        });
       });
-    });
-    (document.getElementById('favoriteRivalsPage-input') as HTMLInputElement).value = loadedSettings.favoriteRivalsPage || '';
-  });
+      (
+        document.getElementById('favoriteRivalsPage-input') as HTMLInputElement
+      ).value = loadedSettings.favoriteRivalsPage || '';
+    },
+  );
 
   const snackbarElement = document.querySelector('.mdc-snackbar');
-  debugger;
   let snackbar: MDCSnackbar | undefined;
   if (snackbarElement) {
     snackbar = new MDCSnackbar(snackbarElement);
   }
 
   saveButton.addEventListener('click', () => {
-    const newSettings: { [key: string]: any } = {};
+    const newSettings: {[key: string]: any} = {};
     newSettings.debugMode = debugModeSwitch?.selected || false;
     settings.forEach(setting => {
       if (setting === 'ratingThreshold') {
         newSettings[setting] = ratingThresholdSlider?.getValue() || 0;
         return;
       }
-      const chipSetEl = document.getElementById(`${setting}-chips`) as HTMLElement;
-      const chips = Array.from(chipSetEl.querySelectorAll('.mdc-evolution-chip__text-label')).map(el => el.textContent || '').filter(Boolean);
+      const chipSetEl = document.getElementById(
+        `${setting}-chips`,
+      ) as HTMLElement;
+      const chips = Array.from(
+        chipSetEl.querySelectorAll('.mdc-evolution-chip__text-label'),
+      )
+        .map(el => el.textContent || '')
+        .filter(Boolean);
       newSettings[setting] = chips;
     });
-    newSettings.favoriteRivalsPage = (document.getElementById('favoriteRivalsPage-input') as HTMLInputElement).value;
+    newSettings.favoriteRivalsPage = (
+      document.getElementById('favoriteRivalsPage-input') as HTMLInputElement
+    ).value;
 
     chrome.storage.sync.set(newSettings, () => {
       if (chrome.runtime.lastError) {

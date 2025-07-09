@@ -3,7 +3,8 @@ const NUM_IGNORED_THREADS_PREFKEYS = 20;
 const DB_VERSION = 2;
 
 export function getReactionCount(post: HTMLElement): number {
-  const reactionsBarLink = post.querySelector<HTMLAnchorElement>('.reactionsBar-link');
+  const reactionsBarLink =
+    post.querySelector<HTMLAnchorElement>('.reactionsBar-link');
   if (!reactionsBarLink) {
     return 0;
   }
@@ -19,7 +20,11 @@ export function getReactionCount(post: HTMLElement): number {
 
   // If there are no <bdi> tags and no "others", but the link exists,
   // it means there is a single user.
-  if (bdiCount === 0 && othersCount === 0 && reactionsBarLink.textContent?.trim()) {
+  if (
+    bdiCount === 0 &&
+    othersCount === 0 &&
+    reactionsBarLink.textContent?.trim()
+  ) {
     return 1;
   }
 
@@ -57,21 +62,25 @@ export function filterPosts(
     ratingThreshold?: number;
     debugMode?: boolean;
   },
-  document: Document
+  document: Document,
 ): void {
   debugMode = settings.debugMode || false;
   const {
     blockedUsers = [],
     alwaysShowUsers = [],
-    ratingThreshold = 0
+    ratingThreshold = 0,
   } = settings;
 
   document.querySelectorAll<HTMLElement>('article.message').forEach(post => {
     const author = post.dataset.author?.toLowerCase();
     if (!author) return;
 
-    const lowercasedBlockedUsers = blockedUsers.map((u: string) => u.toLowerCase());
-    const lowercasedAlwaysShowUsers = alwaysShowUsers.map((u: string) => u.toLowerCase());
+    const lowercasedBlockedUsers = blockedUsers.map((u: string) =>
+      u.toLowerCase(),
+    );
+    const lowercasedAlwaysShowUsers = alwaysShowUsers.map((u: string) =>
+      u.toLowerCase(),
+    );
     const reactionCount = getReactionCount(post);
 
     let hideReason = '';
@@ -99,46 +108,47 @@ export function filterThreads(
     ignoredThreads?: string[];
     ignoreThreadsContaining?: string[];
   },
-  document: Document
+  document: Document,
 ): void {
-  const {
-    ignoredThreads = [],
-    ignoreThreadsContaining = [],
-  } = settings;
+  const {ignoredThreads = [], ignoreThreadsContaining = []} = settings;
 
-  document.querySelectorAll<HTMLElement>('.structItem--thread').forEach(thread => {
-    const titleElement = thread.querySelector<HTMLElement>('div.structItem-title a:last-of-type');
-    if (titleElement) {
-      const title = titleElement.textContent?.toLowerCase() || '';
-      const threadId = thread.dataset.threadListItem;
+  document
+    .querySelectorAll<HTMLElement>('.structItem--thread')
+    .forEach(thread => {
+      const titleElement = thread.querySelector<HTMLElement>(
+        'div.structItem-title a:last-of-type',
+      );
+      if (titleElement) {
+        const title = titleElement.textContent?.toLowerCase() || '';
+        const threadId = thread.dataset.threadListItem;
 
-      let shouldHide = false;
+        let shouldHide = false;
 
-      if (ignoredThreads.length > 0) {
-        for (const ignored of ignoredThreads) {
-          if (threadId === ignored || title.includes(ignored.toLowerCase())) {
-            shouldHide = true;
-            break;
+        if (ignoredThreads.length > 0) {
+          for (const ignored of ignoredThreads) {
+            if (threadId === ignored || title.includes(ignored.toLowerCase())) {
+              shouldHide = true;
+              break;
+            }
           }
         }
-      }
 
-      if (!shouldHide && ignoreThreadsContaining.length > 0) {
-        for (const keyword of ignoreThreadsContaining) {
-          if (title.includes(keyword.toLowerCase())) {
-            shouldHide = true;
-            break;
+        if (!shouldHide && ignoreThreadsContaining.length > 0) {
+          for (const keyword of ignoreThreadsContaining) {
+            if (title.includes(keyword.toLowerCase())) {
+              shouldHide = true;
+              break;
+            }
           }
         }
-      }
 
-      if (shouldHide) {
-        thread.classList.add('on3-sanifier-hidden-thread');
-      } else {
-        thread.classList.remove('on3-sanifier-hidden-thread');
+        if (shouldHide) {
+          thread.classList.add('on3-sanifier-hidden-thread');
+        } else {
+          thread.classList.remove('on3-sanifier-hidden-thread');
+        }
       }
-    }
-  });
+    });
 }
 
 export class On3Helpers {
@@ -172,19 +182,29 @@ export class On3Helpers {
    *     `_on3.hideIgnoredThreads().then(
    *     (hiddenCount, hiddenPosters, hiddenTitles) => {})`;
    */
-  hideIgnoredThreads(): Promise<{ hiddenCount: number; hiddenPosters: string[]; hiddenTitles: string[] }> {
-    return new Promise((resolve) => {
-      this.getPreference({ ignoredThreads: [], ignoreThreadsContaining: [] }).then((items) => {
+  hideIgnoredThreads(): Promise<{
+    hiddenCount: number;
+    hiddenPosters: string[];
+    hiddenTitles: string[];
+  }> {
+    return new Promise(resolve => {
+      void this.getPreference({
+        ignoredThreads: [],
+        ignoreThreadsContaining: [],
+      }).then(items => {
         const ignoredThreads = items.ignoredThreads as string[];
-        const ignoreThreadsContaining = items.ignoreThreadsContaining as string[];
+        const ignoreThreadsContaining =
+          items.ignoreThreadsContaining as string[];
 
         // Get all thread elements from the screen.
-        const threads = document.querySelectorAll<HTMLElement>('.structItem--thread');
+        const threads = document.querySelectorAll<HTMLElement>(
+          '.structItem--thread',
+        );
         let processed = 0;
         let hiddenCount = 0;
         const hiddenPosters: string[] = [];
         const hiddenTitles: string[] = [];
-        threads.forEach((thread) => {
+        threads.forEach(thread => {
           const poster = this.getThreadAuthor(thread);
           const title = this.getThreadTitle(thread);
           const threadId = this.getThreadId(thread);
@@ -192,7 +212,7 @@ export class On3Helpers {
             threadId,
             title,
             ignoredThreads,
-            ignoreThreadsContaining
+            ignoreThreadsContaining,
           );
           if (shouldHide) {
             this.addClass(thread, 'on3-sanifier-hidden-thread');
@@ -231,7 +251,7 @@ export class On3Helpers {
     id: string,
     title: string,
     ignoredThreads: string[],
-    ignoreThreadsContaining: string[]
+    ignoreThreadsContaining: string[],
   ): boolean {
     if (ignoredThreads.length > 0) {
       for (const ignored of ignoredThreads) {
@@ -269,7 +289,7 @@ export class On3Helpers {
     downvotes: number,
     ignoredUsers: string[],
     alwaysShowUsers: string[],
-    ignoreThreshold: number
+    ignoreThreshold: number,
   ): boolean {
     const _threshold = ignoreThreshold || -1;
 
@@ -296,7 +316,11 @@ export class On3Helpers {
    * @param hiddenTitles - An array of hidden thread titles
    * @param inHideMode - true/false indicating if we are in hidden mode.
    */
-  generateHiddenTextThreads(numHidden: number, hiddenTitles: string[], inHideMode: boolean): string {
+  generateHiddenTextThreads(
+    numHidden: number,
+    hiddenTitles: string[],
+    inHideMode: boolean,
+  ): string {
     if (inHideMode) {
       if (numHidden === 0) {
         return 'There are no hidden threads on this screen.';
@@ -304,7 +328,7 @@ export class On3Helpers {
         return `Hiding 1 thread ('${hiddenTitles[0]}').`;
       } else {
         let titleListString = '';
-        hiddenTitles.forEach((title) => {
+        hiddenTitles.forEach(title => {
           titleListString += `'${title}', `;
         });
         const titlesSliced = titleListString.slice(0, -2);
@@ -321,7 +345,11 @@ export class On3Helpers {
    * @param hiddenPosters - a list of posters that have their threads hidden
    * @param inHideMode - true/false indicating if we are in hidden mode
    */
-  generateHiddenText(numHidden: number, hiddenPosters: string[], inHideMode: boolean): string {
+  generateHiddenText(
+    numHidden: number,
+    hiddenPosters: string[],
+    inHideMode: boolean,
+  ): string {
     if (inHideMode) {
       if (numHidden === 0) {
         return 'There are no hidden posts on this screen.';
@@ -329,7 +357,7 @@ export class On3Helpers {
         return `Hiding 1 post by ${hiddenPosters[0]}`;
       } else {
         let posterListString = '';
-        hiddenPosters.forEach((poster) => {
+        hiddenPosters.forEach(poster => {
           posterListString += poster + ', ';
         });
         const postersSliced = posterListString.slice(0, -2);
@@ -358,9 +386,13 @@ export class On3Helpers {
    *   - Because the score threshold is invalid
    * @returns A promise
    */
-  hideIgnoredPosts(): Promise<{ hiddenCount: number; hiddenPosters: string[] }> {
-    return new Promise((resolve) => {
-      this.getPreference({ ignoredUsers: [], alwaysShowUsers: [], ratingThreshold: 0 }).then((items) => {
+  hideIgnoredPosts(): Promise<{hiddenCount: number; hiddenPosters: string[]}> {
+    return new Promise(resolve => {
+      void this.getPreference({
+        ignoredUsers: [],
+        alwaysShowUsers: [],
+        ratingThreshold: 0,
+      }).then(items => {
         const ignoredUsers = items.ignoredUsers as string[];
         const alwaysShowUsers = items.alwaysShowUsers as string[];
         const ignoreThreshold = items.ratingThreshold as number;
@@ -369,7 +401,7 @@ export class On3Helpers {
         let processed = 0;
         let hiddenCount = 0;
         const hiddenPosters: string[] = [];
-        posts.forEach((post) => {
+        posts.forEach(post => {
           const poster = this.getPoster(post);
           const likes = this.getLikes(post);
           const dislikes = 0;
@@ -379,7 +411,7 @@ export class On3Helpers {
             dislikes,
             ignoredUsers,
             alwaysShowUsers,
-            ignoreThreshold
+            ignoreThreshold,
           );
           if (shouldHide) {
             //post.visibility = post.style.display = 'none';
@@ -392,7 +424,7 @@ export class On3Helpers {
 
           processed++;
           if (processed === posts.length) {
-            resolve({ hiddenCount: hiddenCount, hiddenPosters: hiddenPosters });
+            resolve({hiddenCount: hiddenCount, hiddenPosters: hiddenPosters});
           }
         });
       });
@@ -409,8 +441,10 @@ export class On3Helpers {
    */
   tweakThreadLinks(openInNewTab: boolean): void {
     const threadLinkMediaSelector = '.structItem-title>a[data-preview-url]';
-    const threadLinks = document.querySelectorAll<HTMLAnchorElement>(threadLinkMediaSelector);
-    threadLinks.forEach((link) => {
+    const threadLinks = document.querySelectorAll<HTMLAnchorElement>(
+      threadLinkMediaSelector,
+    );
+    threadLinks.forEach(link => {
       if (openInNewTab) {
         link.setAttribute('target', '_blank');
         let href = link.getAttribute('href');
@@ -426,15 +460,13 @@ export class On3Helpers {
     });
   }
 
-  
-
   /**
    * Injects a bar at the top of forum pages, which shows the number of
    * hidden threads, a toggle button to toggle visibility for hidden threads,
    * and a button for ignoring the thread.
    */
   showForumTools(): void {
-    this.getIgnoredForums().then((ignoredForums) => {
+    void this.getIgnoredForums().then(ignoredForums => {
       let isIgnored = false;
       const forumId = this.getForumIdForThisForum();
 
@@ -466,15 +498,21 @@ export class On3Helpers {
       const alreadyExisting = document.querySelector('.ns-tb');
       if (body && !alreadyExisting) {
         body.parentNode?.insertBefore(el, body.parentNode.firstChild);
-        document.getElementById('on3IgnoreForum')?.addEventListener('click', (evt) => {
-          this.onOn3IgnoreForumClicked(evt);
-        });
-        document.getElementById('on3StopIgnoringForum')?.addEventListener('click', (evt) => {
-          this.onOn3StopIgnoringForumClicked(evt);
-        });
-        document.getElementById('on3ToggleHide')?.addEventListener('click', (evt) => {
-          this.onOn3ToggleHideClicked(evt);
-        });
+        document
+          .getElementById('on3IgnoreForum')
+          ?.addEventListener('click', evt => {
+            this.onOn3IgnoreForumClicked(evt);
+          });
+        document
+          .getElementById('on3StopIgnoringForum')
+          ?.addEventListener('click', evt => {
+            this.onOn3StopIgnoringForumClicked(evt);
+          });
+        document
+          .getElementById('on3ToggleHide')
+          ?.addEventListener('click', evt => {
+            this.onOn3ToggleHideClicked(evt);
+          });
         this.showIgnoreFab((evt: MouseEvent) => {
           this.onOn3ToggleHideClicked(evt);
         });
@@ -507,7 +545,9 @@ export class On3Helpers {
     const buttonBar = document.querySelector('.uix_fabBar>.u-scrollButtons');
     if (buttonBar) {
       buttonBar.insertBefore(el, buttonBar.firstChild);
-      document.getElementById('on3ToggleHideFab')?.addEventListener('click', handler);
+      document
+        .getElementById('on3ToggleHideFab')
+        ?.addEventListener('click', handler);
     }
   }
 
@@ -517,7 +557,7 @@ export class On3Helpers {
    * threads.
    */
   showThreadTools(): void {
-    this.getIgnoredThreads().then((ignoredThreads) => {
+    void this.getIgnoredThreads().then(ignoredThreads => {
       let isIgnored = false;
       const threadId = this.getThreadIdForThisThread();
 
@@ -549,15 +589,21 @@ export class On3Helpers {
       const alreadyExisting = document.querySelector('.ns-tb');
       if (body && !alreadyExisting) {
         body.parentNode?.insertBefore(el, body.parentNode.firstChild);
-        document.getElementById('on3IgnoreThread')?.addEventListener('click', (evt) => {
-          this.onOn3IgnoreThreadClicked(evt);
-        });
-        document.getElementById('on3StopIgnoringThread')?.addEventListener('click', (evt) => {
-          this.onOn3StopIgnoringThreadClicked(evt);
-        });
-        document.getElementById('on3ToggleHide')?.addEventListener('click', (evt) => {
-          this.onOn3ToggleHideClicked(evt);
-        });
+        document
+          .getElementById('on3IgnoreThread')
+          ?.addEventListener('click', evt => {
+            this.onOn3IgnoreThreadClicked(evt);
+          });
+        document
+          .getElementById('on3StopIgnoringThread')
+          ?.addEventListener('click', evt => {
+            this.onOn3StopIgnoringThreadClicked(evt);
+          });
+        document
+          .getElementById('on3ToggleHide')
+          ?.addEventListener('click', evt => {
+            this.onOn3ToggleHideClicked(evt);
+          });
         this.showIgnoreFab((evt: MouseEvent) => {
           this.onOn3ToggleHideClicked(evt);
         });
@@ -575,17 +621,20 @@ export class On3Helpers {
    * @returns A promise that can be used like this:
    *     `addPrefValToSet(key, val).then((key {string}, items {array})`
    */
-  addPrefValToSet(prefKey: string, prefVal: any): Promise<{ prefKey: string; items: any[] }> {
-    return new Promise((resolve) => {
-      const setObj: { [key: string]: any[] } = {};
+  addPrefValToSet(
+    prefKey: string,
+    prefVal: any,
+  ): Promise<{prefKey: string; items: any[]}> {
+    return new Promise(resolve => {
+      const setObj: {[key: string]: any[]} = {};
       setObj[prefKey] = [];
-      this.getPreference(setObj).then((items) => {
+      void this.getPreference(setObj).then(items => {
         const arrItems = items[prefKey] as any[];
         this.pushUnique(arrItems, prefVal);
-        const newObj: { [key: string]: any[] } = {};
+        const newObj: {[key: string]: any[]} = {};
         newObj[prefKey] = arrItems;
-        this.setPreference(newObj).then(() => {
-          resolve({ prefKey: prefKey, items: arrItems });
+        void this.setPreference(newObj).then(() => {
+          resolve({prefKey: prefKey, items: arrItems});
         });
       });
     });
@@ -606,16 +655,16 @@ export class On3Helpers {
     const threadId = this.getThreadIdForThisThread();
 
     if (threadId) {
-      this.removeIgnoredThreadById(parseInt(threadId, 10)).then(() => {
+      void this.removeIgnoredThreadById(parseInt(threadId, 10)).then(() => {
         this.indicateThisThreadIsIgnored(false);
       });
     } else {
-      console.warn(`Warning when trying to stop ignoring thread. threadId (${threadId}) was undefined`);
+      console.warn(
+        `Warning when trying to stop ignoring thread. threadId (${threadId}) was undefined`,
+      );
     }
     return false;
   }
-
-  
 
   /**
    * Read the threadId from the HTML element at the top of the Thread page.
@@ -647,8 +696,8 @@ export class On3Helpers {
     evt.stopPropagation();
     evt.preventDefault();
 
-    let threadId: string | undefined, title: string | undefined;
-    threadId = this.getThreadIdForThisThread();
+    const threadId = this.getThreadIdForThisThread();
+    let title: string | undefined;
 
     const titleEl = document.querySelector('h1.p-title-value');
     if (titleEl) {
@@ -656,16 +705,16 @@ export class On3Helpers {
     }
 
     if (threadId && title) {
-      this.saveIgnoredThread(threadId, title).then(() => {
+      void this.saveIgnoredThread(threadId, title).then(() => {
         this.indicateThisThreadIsIgnored(true);
       });
     } else {
-      console.warn(`Warning when trying to ignore thread. Either threadId (${threadId}) or title (${title} were undefined`);
+      console.warn(
+        `Warning when trying to ignore thread. Either threadId (${threadId}) or title (${title} were undefined`,
+      );
     }
     return false;
   }
-
-  
 
   /**
    * Saves an ignored thread (id, title) to storage. In order to allow for more ignored threads (4 KB limit per key), it
@@ -679,45 +728,51 @@ export class On3Helpers {
    */
   saveIgnoredThread(
     threadId: string,
-    threadTitle: string
-  ): Promise<{ prefKey: string; savedObj: { id: string; title: string }; newObj: any[] }> {
-    return new Promise((resolve) => {
-      let prefKey: string;
-
-      const storeAt = parseInt(threadId, 10) % NUM_IGNORED_THREADS_PREFKEYS; // currently 20
-      prefKey = `ignoredThreads_${this.pad(storeAt, 2)}`;
+    threadTitle: string,
+  ): Promise<{
+    prefKey: string;
+    savedObj: {id: string; title: string};
+    newObj: any[];
+  }> {
+    return new Promise(resolve => {
+      const prefKey = `ignoredThreads_${this.pad(
+        parseInt(threadId, 10) % NUM_IGNORED_THREADS_PREFKEYS,
+        2,
+      )}`; // currently 20
 
       const savedObj = {
         id: threadId,
         title: threadTitle,
       };
 
-      this.addPrefValToSet(prefKey, savedObj).then(({ prefKey, items }) => {
-        resolve({ prefKey: prefKey, savedObj: savedObj, newObj: items });
+      void this.addPrefValToSet(prefKey, savedObj).then(({prefKey, items}) => {
+        resolve({prefKey: prefKey, savedObj: savedObj, newObj: items});
       });
     });
   }
-
-  
 
   /**
    * Returns all the ignored threads stored in the 20 slots for preferences
    * @returns Ignored threads returned with signature
    *    `ignoredThreads {Array:Object})`
    */
-  getIgnoredThreads(): Promise<{ id: string }[]> {
-    return new Promise((resolve) => {
-      let retObj: { id: string }[] = [];
-      const prefObj: { [key: string]: any[] } = {};
+  getIgnoredThreads(): Promise<{id: string}[]> {
+    return new Promise(resolve => {
+      let retObj: {id: string}[] = [];
+      const prefObj: {[key: string]: any[]} = {};
 
       for (let i = 0, j = NUM_IGNORED_THREADS_PREFKEYS; i < j; i++) {
         const key = `ignoredThreads_${this.pad(i, 2)}`;
         prefObj[key] = [];
       }
 
-      this.getPreference(prefObj).then((items) => {
+      void this.getPreference(prefObj).then(items => {
         for (const key in items) {
-          if (Object.prototype.hasOwnProperty.call(items, key) && items[key] && Array.isArray(items[key])) {
+          if (
+            Object.prototype.hasOwnProperty.call(items, key) &&
+            items[key] &&
+            Array.isArray(items[key])
+          ) {
             retObj = retObj.concat(items[key]);
           }
         }
@@ -725,8 +780,6 @@ export class On3Helpers {
       });
     });
   }
-
-  
 
   /**
    * Removes an individual ignored thread by it's thread id. If you'd like to
@@ -736,24 +789,24 @@ export class On3Helpers {
    * @returns a promise with the signature of (ignoredThreads) =>
    *     {};
    */
-  removeIgnoredThreadById(threadId: number): Promise<{ id: string }[]> {
-    return new Promise((resolve) => {
+  removeIgnoredThreadById(threadId: number): Promise<{id: string}[]> {
+    return new Promise(resolve => {
       const storedAt = threadId % NUM_IGNORED_THREADS_PREFKEYS;
       const key = `ignoredThreads_${this.pad(storedAt, 2)}`;
-      const prefObj: { [key: string]: any[] } = {};
+      const prefObj: {[key: string]: any[]} = {};
       prefObj[key] = [];
 
-      this.getPreference(prefObj).then((items) => {
+      void this.getPreference(prefObj).then(items => {
         for (let i = 0, j = items[key].length; i < j; i++) {
           const obj = items[key][i];
-          if (obj.id == threadId) {
+          if (obj.id === threadId) {
             items[key].splice(i, 1);
             break;
           }
         }
         prefObj[key] = items[key];
-        this.setPreference(prefObj).then(() => {
-          this.getIgnoredThreads().then((allThreads) => {
+        void this.setPreference(prefObj).then(() => {
+          void this.getIgnoredThreads().then(allThreads => {
             resolve(allThreads);
           });
         });
@@ -766,12 +819,12 @@ export class On3Helpers {
    * @returns a promise that has an empty signature.
    */
   clearAllIgnoredThreads(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       for (let i = 0; i < NUM_IGNORED_THREADS_PREFKEYS; i++) {
         const key = `ignoredThreads_${this.pad(i, 2)}`;
-        const prefObj: { [key: string]: any[] } = {};
+        const prefObj: {[key: string]: any[]} = {};
         prefObj[key] = [];
-        this.setPreference(prefObj);
+        void this.setPreference(prefObj);
       }
 
       resolve();
@@ -785,7 +838,7 @@ export class On3Helpers {
    * @returns The padded number string.
    */
   pad(num: number, size: number): string {
-    let s = '000000000' + num;
+    const s = '000000000' + num;
     return s.substr(s.length - size);
   }
 
@@ -796,8 +849,12 @@ export class On3Helpers {
    * @private
    */
   indicateThisThreadIsIgnored(isHidden: boolean): void {
-    const btnIgnoreEl = document.getElementById('on3IgnoreThread') as HTMLElement;
-    const btnStopIgnoringEl = document.getElementById('on3StopIgnoringThread') as HTMLElement;
+    const btnIgnoreEl = document.getElementById(
+      'on3IgnoreThread',
+    ) as HTMLElement;
+    const btnStopIgnoringEl = document.getElementById(
+      'on3StopIgnoringThread',
+    ) as HTMLElement;
     if (btnIgnoreEl && btnStopIgnoringEl) {
       if (isHidden) {
         btnIgnoreEl.style.display = 'none';
@@ -815,8 +872,12 @@ export class On3Helpers {
    * @private
    */
   indicateThisForumIsIgnored(isHidden: boolean): void {
-    const btnIgnoreEl = document.getElementById('on3IgnoreForum') as HTMLElement;
-    const btnStopIgnoringEl = document.getElementById('on3StopIgnoringForum') as HTMLElement;
+    const btnIgnoreEl = document.getElementById(
+      'on3IgnoreForum',
+    ) as HTMLElement;
+    const btnStopIgnoringEl = document.getElementById(
+      'on3StopIgnoringForum',
+    ) as HTMLElement;
     if (btnIgnoreEl && btnStopIgnoringEl) {
       if (isHidden) {
         btnIgnoreEl.style.display = 'none';
@@ -839,7 +900,9 @@ export class On3Helpers {
     evt.preventDefault();
     this.showingHidden = !this.showingHidden;
     const threadList = document.querySelector('.structItemContainer');
-    const toggleButton = document.getElementById('on3ToggleHideThreads') as HTMLElement;
+    const toggleButton = document.getElementById(
+      'on3ToggleHideThreads',
+    ) as HTMLElement;
 
     if (threadList) {
       if (this.showingHidden) {
@@ -874,11 +937,13 @@ export class On3Helpers {
 
     this.showingHidden = !this.showingHidden;
     const postList = document.querySelectorAll<HTMLElement>('div.block');
-    const toggleButton = document.getElementById('on3ToggleHide') as HTMLElement;
+    const toggleButton = document.getElementById(
+      'on3ToggleHide',
+    ) as HTMLElement;
 
     if (postList) {
       if (this.showingHidden) {
-        postList.forEach((el) => {
+        postList.forEach(el => {
           this.addClass(el, 'on3-show-hidden');
         });
         if (toggleButton) {
@@ -886,7 +951,7 @@ export class On3Helpers {
           this.updateStatusText(this.showingStatusText || '');
         }
       } else {
-        postList.forEach((el) => {
+        postList.forEach(el => {
           this.removeClass(el, 'on3-show-hidden');
         });
         if (toggleButton) {
@@ -929,8 +994,16 @@ export class On3Helpers {
    */
   updateNumHidden(numHidden: number, hiddenPosters: string[]): void {
     const inHideMode = !this.showingHidden;
-    this.hiddenStatusText = this.generateHiddenText(numHidden, hiddenPosters, true);
-    this.showingStatusText = this.generateHiddenText(numHidden, hiddenPosters, false);
+    this.hiddenStatusText = this.generateHiddenText(
+      numHidden,
+      hiddenPosters,
+      true,
+    );
+    this.showingStatusText = this.generateHiddenText(
+      numHidden,
+      hiddenPosters,
+      false,
+    );
     const statusEl = document.getElementById('hiddenStatus');
     let text: string | undefined = undefined;
     if (statusEl) {
@@ -950,8 +1023,16 @@ export class On3Helpers {
    */
   updateNumHiddenThreads(numHidden: number, hiddenTitles: string[]): void {
     const inHideMode = !this.showingHidden;
-    this.hiddenStatusText = this.generateHiddenTextThreads(numHidden, hiddenTitles, true);
-    this.showingStatusText = this.generateHiddenTextThreads(numHidden, hiddenTitles, false);
+    this.hiddenStatusText = this.generateHiddenTextThreads(
+      numHidden,
+      hiddenTitles,
+      true,
+    );
+    this.showingStatusText = this.generateHiddenTextThreads(
+      numHidden,
+      hiddenTitles,
+      false,
+    );
     const statusEl = document.getElementById('hiddenStatus');
     let text: string | undefined = undefined;
     if (statusEl) {
@@ -1007,9 +1088,11 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
       document.getElementById('on3OpenTabs')?.addEventListener('click', () => {
         this.onOn3OpenTabsClicked();
       });
-      document.getElementById('on3ToggleHideThreads')?.addEventListener('click', (evt) => {
-        this.onOn3ToggleHideThreadsClicked(evt);
-      });
+      document
+        .getElementById('on3ToggleHideThreads')
+        ?.addEventListener('click', evt => {
+          this.onOn3ToggleHideThreadsClicked(evt);
+        });
       this.showIgnoreFab((evt: MouseEvent) => {
         this.onOn3ToggleHideThreadsClicked(evt);
       });
@@ -1028,8 +1111,10 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
 
   onOn3OpenTabsClicked(): void {
     this.tweakThreadLinks(true);
-    const threadLinks = document.querySelectorAll<HTMLElement>('.structItem-title>a[data-preview-url]');
-    threadLinks.forEach((link) => {
+    const threadLinks = document.querySelectorAll<HTMLElement>(
+      '.structItem-title>a[data-preview-url]',
+    );
+    threadLinks.forEach(link => {
       if (this.isVisible(link)) {
         link.click();
       }
@@ -1081,7 +1166,9 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    */
   getThreadTitle(thread: Element): string {
     try {
-      const tmpEl = thread.querySelector('.structItem-title>a[data-preview-url]');
+      const tmpEl = thread.querySelector(
+        '.structItem-title>a[data-preview-url]',
+      );
       if (tmpEl) {
         const title = tmpEl.innerHTML.toLowerCase();
         return title;
@@ -1094,8 +1181,6 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
     }
   }
 
-  
-
   /**
    * Gets the thread ID based on the thread element (works in thread list mode)
    * @param thread - the thread element
@@ -1103,7 +1188,9 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    */
   getThreadId(thread: Element): string {
     try {
-      const el = thread.querySelector<HTMLAnchorElement>('.structItem-title>a[data-preview-url]');
+      const el = thread.querySelector<HTMLAnchorElement>(
+        '.structItem-title>a[data-preview-url]',
+      );
       if (el) {
         const url = el.getAttribute('href');
         if (url) {
@@ -1132,8 +1219,6 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
       return undefined;
     }
   }
-
-  
 
   /**
    * Gets the number of likes (upvotes) received for the given post.
@@ -1206,7 +1291,11 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
   getStorageArea(): chrome.storage.StorageArea {
     if (this.overrideStorage) {
       return this.overrideStorage;
-    } else if (chrome && chrome.extension && chrome.extension.inIncognitoContext) {
+    } else if (
+      chrome &&
+      chrome.extension &&
+      chrome.extension.inIncognitoContext
+    ) {
       return chrome.storage.local;
     } else {
       return chrome.storage.sync;
@@ -1217,8 +1306,8 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    * Sets the preference in storage.
    * @returns a promise that has the signature of (bytesInUse) => {}
    */
-  setPreference(prefObj: { [key: string]: any }): Promise<void> {
-    return new Promise((resolve) => {
+  setPreference(prefObj: {[key: string]: any}): Promise<void> {
+    return new Promise(resolve => {
       const storage = this.getStorageArea();
       storage.set(prefObj, () => {
         resolve();
@@ -1231,10 +1320,10 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    * @param prefObj - the preference object key(s) with default values
    * @returns a promise with the signature of (val) => {}
    */
-  getPreference(prefObj: { [key: string]: any }): Promise<{ [key: string]: any }> {
-    return new Promise((resolve) => {
+  getPreference(prefObj: {[key: string]: any}): Promise<{[key: string]: any}> {
+    return new Promise(resolve => {
       const storage = this.getStorageArea();
-      storage.get(prefObj, (val) => {
+      storage.get(prefObj, val => {
         resolve(val);
       });
     });
@@ -1267,7 +1356,14 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    */
   removeClass(el: Element, className: string): void {
     if (el.classList) el.classList.remove(className);
-    else el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+    else
+      el.className = el.className.replace(
+        new RegExp(
+          '(^|\\b)' + className.split(' ').join('|') + '(\\b|$)',
+          'gi',
+        ),
+        ' ',
+      );
   }
 
   /**
@@ -1279,15 +1375,14 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
   pushUnique(array: any[], newItem: any): any[] {
     if (typeof newItem === 'object' && newItem !== null) {
       if (newItem.id) {
-        const found = array.find((obj) => {
+        const found = array.find(obj => {
           return obj.id === newItem.id;
         });
-        if (found == null) {
+        if (found === null) {
           array.push(newItem);
         }
       }
-    }
-    else {
+    } else {
       if (array.indexOf(newItem) === -1) {
         array.push(newItem);
       }
@@ -1296,23 +1391,21 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
     return array;
   }
 
-  
-
   /**
    * Initialize the extension. Perform database migrations and other
    * housekeeping tasks.
    * @returns a promise with an empty signature on completion.
    */
   init(): Promise<void> {
-    return new Promise((resolve) => {
-      this.getPreference({ dbVersion: 0 }).then((items) => {
+    return new Promise(resolve => {
+      void this.getPreference({dbVersion: 0}).then(items => {
         if (items.dbVersion < 1) {
           items.dbVersion = 1;
         }
 
         if (items.dbVersion < DB_VERSION) {
-          this.migrateDatabase(items.dbVersion, DB_VERSION).then(() => {
-            this.setPreference({ dbVersion: DB_VERSION });
+          void this.migrateDatabase(items.dbVersion, DB_VERSION).then(() => {
+            void this.setPreference({dbVersion: DB_VERSION});
             resolve();
           });
         } else {
@@ -1329,15 +1422,18 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    * @param targetVersion The version we need to migrate to.
    * @returns
    */
-  migrateDatabase(currentVersion: number, targetVersion: number): Promise<void> {
-    return new Promise((resolve) => {
+  migrateDatabase(
+    currentVersion: number,
+    targetVersion: number,
+  ): Promise<void> {
+    return new Promise(resolve => {
       if (targetVersion === 2 && currentVersion < 2) {
         // remove all ignored threads because the old vBulletin ignored
         // threads have different thread IDs so we need to start over.
-        this.removePreference('ignoredThreads');
+        void this.removePreference('ignoredThreads');
         for (let i = 0, j = NUM_IGNORED_THREADS_PREFKEYS; i < j; i++) {
           const key = `ignoredThreads_${this.pad(i, 2)}`;
-          this.removePreference(key);
+          void this.removePreference(key);
         }
       }
       resolve();

@@ -1,11 +1,9 @@
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
     frameworks: ['jasmine'],
-    files: [
-      'dist-test/bundle.test.js'
-    ],
+    files: ['dist-test/bundle.test.js'],
     reporters: ['progress'],
     browsers: ['Chrome'],
-    singleRun: true
+    singleRun: true,
   });
 };
