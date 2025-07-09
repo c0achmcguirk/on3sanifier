@@ -4,6 +4,20 @@ function createToolbar(): HTMLElement {
   const newDiv = document.createElement('div');
   newDiv.className = 'on3san-toolbar';
 
+  const logo = document.createElement('img');
+  logo.src = chrome.runtime.getURL('o3s_logo_48.png');
+  logo.style.height = '24px';
+  logo.style.marginRight = '16px';
+
+  // Add a tooltip to the logo
+  const manifest = chrome.runtime.getManifest();
+  const isFirefox = manifest.browser_specific_settings?.gecko?.id;
+  logo.title = isFirefox ?
+    'Toolbar from the on3 Sanifier add-on' :
+    'Toolbar from the on3 Sanifier extension';
+
+  newDiv.appendChild(logo);
+
   const showHiddenButton = document.createElement('button');
   showHiddenButton.className = 'mdc-button mdc-button--raised';
   showHiddenButton.innerHTML = '<span class="mdc-button__label">Show hidden</span>';
