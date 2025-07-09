@@ -77,26 +77,32 @@ function filterContent(): void {
       ratingThreshold = 0
     } = settings;
 
-    // Filter posts by author.
+    // Filter posts by author and reaction count.
     document.querySelectorAll<HTMLElement>('article.message').forEach(post => {
       const author = post.dataset.author?.toLowerCase();
       if (!author) return;
 
       const lowercasedBlockedUsers = blockedUsers.map((u: string) => u.toLowerCase());
       const lowercasedAlwaysShowUsers = alwaysShowUsers.map((u: string) => u.toLowerCase());
+      const reactionCount = getReactionCount(post);
 
-      if (lowercasedBlockedUsers.includes(author)) {
-        log(`Hiding post by ${author} because they are in the blocked user list.`);
-        post.classList.add('on3-sanifier-hidden-post');
-      } else if (lowercasedAlwaysShowUsers.includes(author)) {
-        log(`Showing post by ${author} because they are in the always show user list.`);
-        post.classList.remove('on3-sanifier-hidden-post');
+      let hideReason = '';
+
+      // Determine if the post should be hidden, with alwaysShowUsers taking precedence.
+      if (lowercasedAlwaysShowUsers.includes(author)) {
+        // This user's posts should always be shown, so we don't set a hideReason.
+      } else if (lowercasedBlockedUsers.includes(author)) {
+        hideReason = `author '${author}' is in the blocked user list.`;
+      } else if (reactionCount < ratingThreshold) {
+        hideReason = `it has ${reactionCount} reaction(s) and the rating threshold is ${ratingThreshold}.`;
       }
 
-      const reactionCount = getReactionCount(post);
-      if (reactionCount < ratingThreshold) {
-        log(`Hiding post by ${author} because it has ${reactionCount} reactions and the rating threshold is ${ratingThreshold}.`);
+      if (hideReason) {
+        log(`Hiding post by ${author} because ${hideReason}`);
         post.classList.add('on3-sanifier-hidden-post');
+      } else {
+        log(`Showing post by ${author}.`);
+        post.classList.remove('on3-sanifier-hidden-post');
       }
     });
 

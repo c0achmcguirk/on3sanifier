@@ -94,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     const loadedSettings = result || {};
-    debugger;
     if (debugModeSwitch) {
       debugModeSwitch.selected = loadedSettings.debugMode || false;
     }
@@ -119,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   saveButton.addEventListener('click', () => {
     const newSettings: { [key: string]: any } = {};
-    debugger;
     newSettings.debugMode = debugModeSwitch?.selected || false;
     settings.forEach(setting => {
       if (setting === 'ratingThreshold') {
