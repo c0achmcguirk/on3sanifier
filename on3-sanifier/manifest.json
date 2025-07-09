@@ -4,15 +4,15 @@
   "version": "1.0.0",
   "description": "Filters posts and threads on on3.com.",
   "icons": {
-    "16": "images/icon16.png",
-    "48": "images/icon48.png",
-    "128": "images/icon128.png"
+    "16": "o3s_logo_16.png",
+    "48": "o3s_logo_48.png",
+    "128": "o3s_logo_128.png"
   },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "images/icon16.png",
-      "48": "images/icon48.png"
+      "16": "o3s_logo_16.png",
+      "48": "o3s_logo_48.png"
     }
   },
   "options_ui": {
@@ -40,7 +40,10 @@
         "*.html",
         "*.css",
         "js/*.js",
-        "images/*.png"
+        "images/*.png",
+        "o3s_logo_128.png",
+        "o3s_logo_48.png",
+        "o3s_logo_16.png"
       ],
       "matches": ["*://*.on3.com/*"]
     }

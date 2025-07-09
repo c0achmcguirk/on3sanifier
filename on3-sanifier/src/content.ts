@@ -1,31 +1,40 @@
 import { MDCRipple } from '@material/ripple';
 
-function injectCustomDivs(): void {
-  const targetDivs = document.querySelectorAll('.block-outer');
-  targetDivs.forEach(targetDiv => {
-    // Check if our div already exists to avoid duplicates.
-    if (!targetDiv.previousElementSibling || !targetDiv.previousElementSibling.classList.contains('on3san-toolbar')) {
-      const newDiv = document.createElement('div');
-      newDiv.className = 'on3san-toolbar';
+function createToolbar(): HTMLElement {
+  const newDiv = document.createElement('div');
+  newDiv.className = 'on3san-toolbar';
 
-      const showHiddenButton = document.createElement('button');
-      showHiddenButton.className = 'mdc-button mdc-button--raised';
-      showHiddenButton.innerHTML = '<span class="mdc-button__label">Show hidden</span>';
-      new MDCRipple(showHiddenButton);
+  const showHiddenButton = document.createElement('button');
+  showHiddenButton.className = 'mdc-button mdc-button--raised';
+  showHiddenButton.innerHTML = '<span class="mdc-button__label">Show hidden</span>';
+  new MDCRipple(showHiddenButton);
 
-      showHiddenButton.addEventListener('click', () => {
-        document.body.classList.toggle('on3san-show-all');
-        const isShowingAll = document.body.classList.contains('on3san-show-all');
-        const newText = isShowingAll ? 'Sanify' : 'Show hidden';
-        document.querySelectorAll('.on3san-toolbar button .mdc-button__label').forEach(buttonLabel => {
-          (buttonLabel as HTMLElement).textContent = newText;
-        });
-      });
-
-      newDiv.appendChild(showHiddenButton);
-      targetDiv.parentNode?.insertBefore(newDiv, targetDiv);
-    }
+  showHiddenButton.addEventListener('click', () => {
+    document.body.classList.toggle('on3san-show-all');
+    const isShowingAll = document.body.classList.contains('on3san-show-all');
+    const newText = isShowingAll ? 'Sanify' : 'Show hidden';
+    document.querySelectorAll('.on3san-toolbar .mdc-button__label').forEach(buttonLabel => {
+      (buttonLabel as HTMLElement).textContent = newText;
+    });
   });
+
+  newDiv.appendChild(showHiddenButton);
+  return newDiv;
+}
+
+function injectCustomDivs(): void {
+  // If a toolbar already exists, don't inject another one.
+  if (document.querySelector('.on3san-toolbar')) {
+    return;
+  }
+
+  const targetContainer = document.querySelector('.p-body-content');
+  if (targetContainer) {
+    const topToolbar = createToolbar();
+    const bottomToolbar = createToolbar();
+    targetContainer.prepend(topToolbar);
+    targetContainer.append(bottomToolbar);
+  }
 }
 
 
