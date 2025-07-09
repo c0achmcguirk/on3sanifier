@@ -2,6 +2,145 @@
 const NUM_IGNORED_THREADS_PREFKEYS = 20;
 const DB_VERSION = 2;
 
+export function getReactionCount(post: HTMLElement): number {
+  const reactionsBarLink = post.querySelector<HTMLAnchorElement>('.reactionsBar-link');
+  if (!reactionsBarLink) {
+    return 0;
+  }
+
+  const linkHtml = reactionsBarLink.innerHTML;
+
+  // Count the number of named users by counting the <bdi> tags.
+  const bdiCount = (linkHtml.match(/<bdi>/g) || []).length;
+
+  // Check for the "and X others" pattern to get the count of unnamed users.
+  const andOthersMatch = linkHtml.match(/and (\d+) others/);
+  const othersCount = andOthersMatch ? parseInt(andOthersMatch[1], 10) : 0;
+
+  // If there are no <bdi> tags and no "others", but the link exists,
+  // it means there is a single user.
+  if (bdiCount === 0 && othersCount === 0 && reactionsBarLink.textContent?.trim()) {
+    return 1;
+  }
+
+  return bdiCount + othersCount;
+}
+
+export function colorCodePostsByReactions(): void {
+  document.querySelectorAll<HTMLElement>('article.message').forEach(post => {
+    const reactionCount = getReactionCount(post);
+    let backgroundColor = '';
+    if (reactionCount >= 16) {
+      backgroundColor = '#efcb3e';
+    } else if (reactionCount >= 10) {
+      backgroundColor = '#f6dc76';
+    } else if (reactionCount >= 5) {
+      backgroundColor = '#faeaab';
+    }
+
+    post.style.backgroundColor = backgroundColor;
+  });
+}
+
+let debugMode = false;
+
+function log(message: string) {
+  if (debugMode) {
+    console.log(`on3 Sanifier: ${message}`);
+  }
+}
+
+export function filterPosts(
+  settings: {
+    blockedUsers?: string[];
+    alwaysShowUsers?: string[];
+    ratingThreshold?: number;
+    debugMode?: boolean;
+  },
+  document: Document
+): void {
+  debugMode = settings.debugMode || false;
+  const {
+    blockedUsers = [],
+    alwaysShowUsers = [],
+    ratingThreshold = 0
+  } = settings;
+
+  document.querySelectorAll<HTMLElement>('article.message').forEach(post => {
+    const author = post.dataset.author?.toLowerCase();
+    if (!author) return;
+
+    const lowercasedBlockedUsers = blockedUsers.map((u: string) => u.toLowerCase());
+    const lowercasedAlwaysShowUsers = alwaysShowUsers.map((u: string) => u.toLowerCase());
+    const reactionCount = getReactionCount(post);
+
+    let hideReason = '';
+
+    if (lowercasedAlwaysShowUsers.includes(author)) {
+      // This user's posts should always be shown, so we don't set a hideReason.
+    } else if (lowercasedBlockedUsers.includes(author)) {
+      hideReason = `author '${author}' is in the blocked user list.`;
+    } else if (reactionCount < ratingThreshold) {
+      hideReason = `it has ${reactionCount} reaction(s) and the rating threshold is ${ratingThreshold}.`;
+    }
+
+    if (hideReason) {
+      log(`Hiding post by ${author} because ${hideReason}`);
+      post.classList.add('on3-sanifier-hidden-post');
+    } else {
+      log(`Showing post by ${author}.`);
+      post.classList.remove('on3-sanifier-hidden-post');
+    }
+  });
+}
+
+export function filterThreads(
+  settings: {
+    ignoredThreads?: string[];
+    ignoreThreadsContaining?: string[];
+  },
+  document: Document
+): void {
+  const {
+    ignoredThreads = [],
+    ignoreThreadsContaining = [],
+  } = settings;
+
+  document.querySelectorAll<HTMLElement>('.structItem--thread').forEach(thread => {
+    const titleElement = thread.querySelector<HTMLElement>('div.structItem-title a:last-of-type');
+    if (titleElement) {
+      const title = titleElement.textContent?.toLowerCase() || '';
+      const threadId = thread.dataset.threadListItem;
+
+      let shouldHide = false;
+
+      if (ignoredThreads.length > 0) {
+        for (const ignored of ignoredThreads) {
+          if (threadId === ignored || title.includes(ignored.toLowerCase())) {
+            shouldHide = true;
+            break;
+          }
+        }
+      }
+
+      if (!shouldHide && ignoreThreadsContaining.length > 0) {
+        for (const keyword of ignoreThreadsContaining) {
+          if (title.includes(keyword.toLowerCase())) {
+            shouldHide = true;
+            break;
+          }
+        }
+      }
+
+      if (shouldHide) {
+        thread.classList.add('on3-sanifier-hidden-thread');
+      } else {
+        thread.classList.remove('on3-sanifier-hidden-thread');
+      }
+    }
+  });
+}
+
 export class On3Helpers {
   showingHidden = false;
   hiddenStatusText = '';
