@@ -1,3 +1,4 @@
+import { MDCSnackbar } from '@material/snackbar';
 import { MDCSwitch } from '@material/switch';
 import { MDCTopAppBar } from '@material/top-app-bar';
 import { MDCTextField } from '@material/textfield';
@@ -116,6 +117,13 @@ document.addEventListener('DOMContentLoaded', () => {
     (document.getElementById('favoriteRivalsPage-input') as HTMLInputElement).value = loadedSettings.favoriteRivalsPage || '';
   });
 
+  const snackbarElement = document.querySelector('.mdc-snackbar');
+  debugger;
+  let snackbar: MDCSnackbar | undefined;
+  if (snackbarElement) {
+    snackbar = new MDCSnackbar(snackbarElement);
+  }
+
   saveButton.addEventListener('click', () => {
     const newSettings: { [key: string]: any } = {};
     newSettings.debugMode = debugModeSwitch?.selected || false;
@@ -133,16 +141,16 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.sync.set(newSettings, () => {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError);
+        if (snackbar) {
+          snackbar.labelText = 'Error saving settings.';
+          snackbar.open();
+        }
         return;
       }
-      const toast = document.createElement('div');
-      toast.id = 'toast';
-      toast.className = 'show';
-      toast.textContent = 'Settings saved!';
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        toast.remove();
-      }, 3000);
+      if (snackbar) {
+        snackbar.labelText = 'Settings saved!';
+        snackbar.open();
+      }
     });
   });
 
