@@ -320,7 +320,7 @@ export class On3Helpers {
           'div.structItem-title a[data-tp-primary="on"]',
         );
         if (link?.href) {
-          void chrome.tabs.create({url: link.href});
+          void chrome.runtime.sendMessage({action: 'openTab', url: link.href});
         }
       }
     });
