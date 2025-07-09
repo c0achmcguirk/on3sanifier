@@ -38,6 +38,19 @@ function createToolbar(): HTMLElement {
 }
 
 function injectCustomDivs(): void {
+  // If a toolbar already exists, don't inject another one.
+  if (document.querySelector('.on3san-toolbar')) {
+    return;
+  }
+
+  const targetContainer = document.querySelector('.p-body-content');
+  if (targetContainer) {
+    const topToolbar = createToolbar();
+    const bottomToolbar = createToolbar();
+    targetContainer.prepend(topToolbar);
+    targetContainer.append(bottomToolbar);
+  }
+}
 
 // Function to filter posts and threads based on user settings.
 function filterContent(): void {
