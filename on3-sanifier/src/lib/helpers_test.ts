@@ -176,14 +176,40 @@ describe('On3Helpers', () => {
     const helpers = new On3Helpers();
     expect(helpers).toBeDefined();
   });
+
+  describe('detectMode', () => {
+    it('should return "inthread" for thread URLs', () => {
+      const helpers = new On3Helpers();
+      const url = 'https://www.on3.com/boards/threads/some-thread.12345/';
+      expect(helpers.detectMode(url)).toBe('inthread');
+    });
+
+    it('should return "inforum" for forum URLs', () => {
+      const helpers = new On3Helpers();
+      const url = 'https://www.on3.com/boards/forums/some-forum.67/';
+      expect(helpers.detectMode(url)).toBe('inforum');
+    });
+
+    it('should return "inlist" for forum list URLs', () => {
+      const helpers = new On3Helpers();
+      const url = 'https://www.on3.com/boards/forum/some-forum-list.67/';
+      expect(helpers.detectMode(url)).toBe('inlist');
+    });
+
+    it('should return undefined for other URLs', () => {
+      const helpers = new On3Helpers();
+      const url = 'https://www.on3.com/boards/some-other-page/';
+      expect(helpers.detectMode(url)).toBeUndefined();
+    });
+  });
 });
 
 describe('openUnreadThreadsInTabs', () => {
   beforeEach(() => {
-    // Mock chrome.tabs.create
+    // Mock chrome.runtime.sendMessage
     (window as any).chrome = {
-      tabs: {
-        create: () => {},
+      runtime: {
+        sendMessage: () => {},
       },
     };
   });
@@ -193,7 +219,7 @@ describe('openUnreadThreadsInTabs', () => {
   });
 
   it('should open unread, non-hidden threads in new tabs', () => {
-    spyOn(chrome.tabs, 'create');
+    spyOn(chrome.runtime, 'sendMessage');
     document.body.innerHTML = `
       <div class="structItem--thread is-unread">
         <div class="structItem-title">
@@ -220,11 +246,13 @@ describe('openUnreadThreadsInTabs', () => {
     const helpers = new On3Helpers();
     helpers.openUnreadThreadsInTabs();
 
-    expect(chrome.tabs.create).toHaveBeenCalledTimes(2);
-    expect(chrome.tabs.create).toHaveBeenCalledWith({
+    expect(chrome.runtime.sendMessage).toHaveBeenCalledTimes(2);
+    expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
+      action: 'openTab',
       url: 'http://localhost:9876/unread-thread-1',
     });
-    expect(chrome.tabs.create).toHaveBeenCalledWith({
+    expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
+      action: 'openTab',
       url: 'http://localhost:9876/unread-thread-2',
     });
   });

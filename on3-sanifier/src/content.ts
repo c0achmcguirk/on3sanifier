@@ -43,18 +43,22 @@ function createToolbar(): HTMLElement {
 
   newDiv.appendChild(showHiddenButton);
 
-  const openUnreadButton = document.createElement('button');
-  openUnreadButton.className = 'mdc-button mdc-button--raised';
-  openUnreadButton.innerHTML =
-    '<span class="mdc-button__label">Open all unread in new tabs</span>';
-  new MDCRipple(openUnreadButton);
+  const helpers = new On3Helpers();
+  const mode = helpers.detectMode(window.location.href);
 
-  openUnreadButton.addEventListener('click', () => {
-    const helpers = new On3Helpers();
-    helpers.openUnreadThreadsInTabs();
-  });
+  if (mode === 'inforum' || mode === 'inlist') {
+    const openUnreadButton = document.createElement('button');
+    openUnreadButton.className = 'mdc-button mdc-button--raised';
+    openUnreadButton.innerHTML =
+      '<span class="mdc-button__label">Open all unread in new tabs</span>';
+    new MDCRipple(openUnreadButton);
 
-  newDiv.appendChild(openUnreadButton);
+    openUnreadButton.addEventListener('click', () => {
+      helpers.openUnreadThreadsInTabs();
+    });
+
+    newDiv.appendChild(openUnreadButton);
+  }
 
   return newDiv;
 }

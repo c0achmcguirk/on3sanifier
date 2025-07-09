@@ -165,9 +165,9 @@ export class On3Helpers {
    */
   detectMode(url: string): string | undefined {
     let retVal: string | undefined = undefined;
-    if (url.includes('?threads/')) {
+    if (url.includes('/threads/')) {
       retVal = 'inthread';
-    } else if (url.includes('?forums/')) {
+    } else if (url.includes('/forums/')) {
       retVal = 'inforum';
     } else if (url.includes('/forum/')) {
       retVal = 'inlist';
