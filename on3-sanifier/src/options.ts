@@ -5,6 +5,16 @@ import {MDCTextField} from '@material/textfield';
 import {MDCRipple} from '@material/ripple';
 import {MDCSlider} from '@material/slider';
 
+interface Settings {
+  debugMode: boolean;
+  ratingThreshold: number;
+  blockedUsers: string[];
+  alwaysShowUsers: string[];
+  ignoredThreads: string[];
+  ignoreThreadsContaining: string[];
+  favoriteRivalsPage: string;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const topAppBarElement = document.querySelector('.mdc-top-app-bar');
   if (topAppBarElement) {
@@ -147,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   saveButton.addEventListener('click', () => {
-    const newSettings: {[key: string]: any} = {};
+    const newSettings: Partial<Settings> = {};
     newSettings.debugMode = debugModeSwitch?.selected || false;
     settings.forEach(setting => {
       if (setting === 'ratingThreshold') {
@@ -162,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
       )
         .map(el => el.textContent || '')
         .filter(Boolean);
-      newSettings[setting] = chips;
+      newSettings[setting as keyof Settings] = chips;
     });
     newSettings.favoriteRivalsPage = (
       document.getElementById('favoriteRivalsPage-input') as HTMLInputElement
