@@ -2,6 +2,7 @@ import {
   colorCodePostsByReactions,
   filterPosts,
   filterThreads,
+  On3Helpers,
 } from './lib/helpers';
 import {MDCRipple} from '@material/ripple';
 
@@ -14,7 +15,7 @@ function createToolbar(): HTMLElement {
   logo.style.height = '24px';
   logo.style.marginRight = '16px';
 
-  // Add a tooltip to the logo
+  // Add a tooltip to the logo.
   const manifest = chrome.runtime.getManifest();
   const isFirefox = manifest.browser_specific_settings?.gecko?.id;
   logo.title = isFirefox
@@ -41,6 +42,20 @@ function createToolbar(): HTMLElement {
   });
 
   newDiv.appendChild(showHiddenButton);
+
+  const openUnreadButton = document.createElement('button');
+  openUnreadButton.className = 'mdc-button mdc-button--raised';
+  openUnreadButton.innerHTML =
+    '<span class="mdc-button__label">Open all unread in new tabs</span>';
+  new MDCRipple(openUnreadButton);
+
+  openUnreadButton.addEventListener('click', () => {
+    const helpers = new On3Helpers();
+    helpers.openUnreadThreadsInTabs();
+  });
+
+  newDiv.appendChild(openUnreadButton);
+
   return newDiv;
 }
 

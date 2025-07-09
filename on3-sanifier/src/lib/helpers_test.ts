@@ -177,3 +177,55 @@ describe('On3Helpers', () => {
     expect(helpers).toBeDefined();
   });
 });
+
+describe('openUnreadThreadsInTabs', () => {
+  beforeEach(() => {
+    // Mock chrome.tabs.create
+    (window as any).chrome = {
+      tabs: {
+        create: () => {},
+      },
+    };
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('should open unread, non-hidden threads in new tabs', () => {
+    spyOn(chrome.tabs, 'create');
+    document.body.innerHTML = `
+      <div class="structItem--thread is-unread">
+        <div class="structItem-title">
+          <a href="/unread-thread-1" data-tp-primary="on"></a>
+        </div>
+      </div>
+      <div class="structItem--thread is-unread on3-sanifier-hidden-thread">
+        <div class="structItem-title">
+          <a href="/hidden-thread" data-tp-primary="on"></a>
+        </div>
+      </div>
+      <div class="structItem--thread">
+        <div class="structItem-title">
+          <a href="/read-thread" data-tp-primary="on"></a>
+        </div>
+      </div>
+      <div class="structItem--thread is-unread">
+        <div class="structItem-title">
+          <a href="/unread-thread-2" data-tp-primary="on"></a>
+        </div>
+      </div>
+    `;
+
+    const helpers = new On3Helpers();
+    helpers.openUnreadThreadsInTabs();
+
+    expect(chrome.tabs.create).toHaveBeenCalledTimes(2);
+    expect(chrome.tabs.create).toHaveBeenCalledWith({
+      url: 'http://localhost:9876/unread-thread-1',
+    });
+    expect(chrome.tabs.create).toHaveBeenCalledWith({
+      url: 'http://localhost:9876/unread-thread-2',
+    });
+  });
+});

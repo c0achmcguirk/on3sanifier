@@ -310,6 +310,22 @@ export class On3Helpers {
     return false;
   }
 
+  openUnreadThreadsInTabs(): void {
+    const unreadThreads = document.querySelectorAll<HTMLElement>(
+      '.structItem--thread.is-unread',
+    );
+    unreadThreads.forEach(thread => {
+      if (!thread.classList.contains('on3-sanifier-hidden-thread')) {
+        const link = thread.querySelector<HTMLAnchorElement>(
+          'div.structItem-title a[data-tp-primary="on"]',
+        );
+        if (link?.href) {
+          void chrome.tabs.create({url: link.href});
+        }
+      }
+    });
+  }
+
   /**
    * Generates the text displayed in the thread bar for current hidden mode of the page. This is meant for thread list view.
    * @param numHidden - The number of currently hidden threads
