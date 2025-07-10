@@ -58,6 +58,65 @@ function createToolbar(): HTMLElement {
     });
 
     newDiv.appendChild(openUnreadButton);
+  } else if (mode === 'inthread') {
+    const ignoreThreadButton = document.createElement('button');
+    ignoreThreadButton.className = 'mdc-button mdc-button--raised';
+    ignoreThreadButton.innerHTML =
+      '<span class="mdc-button__label">Ignore thread</span>';
+    new MDCRipple(ignoreThreadButton);
+
+    const threadId = helpers.getThreadIdFromUrl(window.location.href);
+    const threadTitle = helpers.getThreadTitleFromUrl(window.location.href);
+
+    const setButtonState = (isIgnored: boolean) => {
+      if (isIgnored) {
+        ignoreThreadButton.innerHTML =
+          '<span class="mdc-button__label">Stop ignoring thread</span>';
+        ignoreThreadButton.classList.add('mdc-button--unelevated');
+        ignoreThreadButton.classList.remove('mdc-button--raised');
+      } else {
+        ignoreThreadButton.innerHTML =
+          '<span class="mdc-button__label">Ignore thread</span>';
+        ignoreThreadButton.classList.add('mdc-button--raised');
+        ignoreThreadButton.classList.remove('mdc-button--unelevated');
+      }
+    };
+
+    if (threadId) {
+      void chrome.storage.sync.get('ignoredThreads', result => {
+        const ignoredThreads = (result.ignoredThreads || []) as string[];
+        setButtonState(ignoredThreads.includes(threadId));
+      });
+    }
+
+    ignoreThreadButton.addEventListener('click', () => {
+      if (threadId && threadTitle) {
+        void chrome.storage.sync.get('ignoredThreads', result => {
+          const ignoredThreads = (result.ignoredThreads || []) as {
+            id: string;
+            title: string;
+          }[];
+          const isIgnored = ignoredThreads.some(t => t.id === threadId);
+
+          if (isIgnored) {
+            const newIgnoredThreads = ignoredThreads.filter(
+              t => t.id !== threadId,
+            );
+            void chrome.storage.sync.set({ignoredThreads: newIgnoredThreads});
+            setButtonState(false);
+          } else {
+            const newIgnoredThreads = [
+              ...ignoredThreads,
+              {id: threadId, title: threadTitle},
+            ];
+            void chrome.storage.sync.set({ignoredThreads: newIgnoredThreads});
+            setButtonState(true);
+          }
+        });
+      }
+    });
+
+    newDiv.appendChild(ignoreThreadButton);
   }
 
   return newDiv;

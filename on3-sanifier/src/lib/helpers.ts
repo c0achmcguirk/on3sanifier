@@ -115,26 +115,22 @@ export function filterThreads(
   document
     .querySelectorAll<HTMLElement>('.structItem--thread')
     .forEach(thread => {
+      const threadId = thread.className.match(/js-threadListItem-(\d+)/)?.[1];
+      if (threadId && settings.ignoredThreads?.some(t => t.id === threadId)) {
+        thread.classList.add('on3-sanifier-hidden-thread');
+        return;
+      }
+
       const titleElement = thread.querySelector<HTMLElement>(
         'div.structItem-title a:last-of-type',
       );
       if (titleElement) {
         const title = titleElement.textContent?.toLowerCase() || '';
-        const threadId = thread.dataset.threadListItem;
 
         let shouldHide = false;
 
-        if (ignoredThreads.length > 0) {
-          for (const ignored of ignoredThreads) {
-            if (threadId === ignored || title.includes(ignored.toLowerCase())) {
-              shouldHide = true;
-              break;
-            }
-          }
-        }
-
-        if (!shouldHide && ignoreThreadsContaining.length > 0) {
-          for (const keyword of ignoreThreadsContaining) {
+        if (settings.ignoreThreadsContaining?.length > 0) {
+          for (const keyword of settings.ignoreThreadsContaining) {
             if (title.includes(keyword.toLowerCase())) {
               shouldHide = true;
               break;
@@ -1231,6 +1227,16 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
     const matches = regex.exec(url);
     if (matches) {
       return matches[1];
+    } else {
+      return undefined;
+    }
+  }
+
+  getThreadTitleFromUrl(url: string): string | undefined {
+    const regex = /threads\/(.+)\.(\d+)\//;
+    const matches = regex.exec(url);
+    if (matches) {
+      return matches[1].replace(/-/g, ' ');
     } else {
       return undefined;
     }

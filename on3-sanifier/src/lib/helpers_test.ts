@@ -145,13 +145,12 @@ describe('filterThreads', () => {
 
   it('should hide a thread by its ID', () => {
     const thread = document.createElement('div');
-    thread.className = 'structItem--thread';
-    thread.dataset.threadListItem = '12345';
+    thread.className = 'structItem--thread js-threadListItem-12345';
     thread.innerHTML =
       '<div class="structItem-title"><a href="#">Thread Title</a></div>';
     document.body.appendChild(thread);
 
-    const settings = {ignoredThreads: ['12345']};
+    const settings = {ignoredThreads: [{id: '12345', title: 'Thread Title'}]};
     filterThreads(settings, document);
 
     expect(thread.classList.contains('on3-sanifier-hidden-thread')).toBe(true);
@@ -200,6 +199,21 @@ describe('On3Helpers', () => {
       const helpers = new On3Helpers();
       const url = 'https://www.on3.com/boards/some-other-page/';
       expect(helpers.detectMode(url)).toBeUndefined();
+    });
+  });
+
+  describe('getThreadTitleFromUrl', () => {
+    it('should return the thread title from a URL', () => {
+      const helpers = new On3Helpers();
+      const url =
+        'https://www.on3.com/boards/threads/some-thread-title.12345/';
+      expect(helpers.getThreadTitleFromUrl(url)).toBe('some thread title');
+    });
+
+    it('should return undefined for non-thread URLs', () => {
+      const helpers = new On3Helpers();
+      const url = 'https://www.on3.com/boards/forums/some-forum.67/';
+      expect(helpers.getThreadTitleFromUrl(url)).toBeUndefined();
     });
   });
 });
