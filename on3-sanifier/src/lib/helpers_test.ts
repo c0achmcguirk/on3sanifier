@@ -150,7 +150,10 @@ describe('filterThreads', () => {
       '<div class="structItem-title"><a href="#">Thread Title</a></div>';
     document.body.appendChild(thread);
 
-    const settings = {ignoredThreads: [{id: '12345', title: 'Thread Title'}]};
+    const settings = {
+      ignoredThreads: [{id: '12345', title: 'Thread Title'}],
+      ignoreThreadsContaining: [],
+    };
     filterThreads(settings, document);
 
     expect(thread.classList.contains('on3-sanifier-hidden-thread')).toBe(true);
