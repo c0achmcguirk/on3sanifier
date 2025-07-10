@@ -20,14 +20,19 @@
     "open_in_tab": true
   },
   "background": {
-    "service_worker": "js/background.js",
-    "scripts": ["js/background.js"]
+    "service_worker": "js/background.js"
   },
   "content_scripts": [
     {
-      "matches": ["*://*.on3.com/*"],
-      "js": ["js/content.js"],
-      "css": ["site-style.css"]
+      "matches": [
+        "*://*.on3.com/*"
+      ],
+      "js": [
+        "js/content.js"
+      ],
+      "css": [
+        "site-style.css"
+      ]
     }
   ],
   "permissions": [
@@ -46,7 +51,9 @@
         "o3s_logo_48.png",
         "o3s_logo_16.png"
       ],
-      "matches": ["*://*.on3.com/*"]
+      "matches": [
+        "*://*.on3.com/*"
+      ]
     }
   ],
   "content_security_policy": {
@@ -54,7 +61,12 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "on3-sanifier@example.com"
+      "id": "on3-sanifier@example.com",
+      "background": {
+        "scripts": [
+          "js/background.js"
+        ]
+      }
     }
   }
 }
