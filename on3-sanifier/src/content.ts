@@ -80,6 +80,7 @@ function injectCustomDivs(): void {
 
 // Function to filter posts and threads based on user settings.
 function filterContent(): void {
+  if (!chrome.runtime?.id) return;
   chrome.storage.sync.get(
     [
       'blockedUsers',
