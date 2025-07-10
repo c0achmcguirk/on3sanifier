@@ -153,7 +153,11 @@ document.addEventListener('DOMContentLoaded', () => {
     snackbar = new MDCSnackbar(snackbarElement);
   }
 
-  const saveSettings = () => {
+  const saveImportedSettingsButton = document.getElementById(
+    'save-imported-settings',
+  ) as HTMLElement;
+
+  const getAllSettingsFromUI = (): Partial<Settings> => {
     const newSettings: Partial<Settings> = {};
     newSettings.debugMode = debugModeSwitch?.selected || false;
     settings.forEach(setting => {
@@ -174,6 +178,104 @@ document.addEventListener('DOMContentLoaded', () => {
     newSettings.favoriteRivalsPage = (
       document.getElementById('favoriteRivalsPage-input') as HTMLInputElement
     ).value;
+    return newSettings;
+  };
+
+  const updateUiWithOptions = (newSettings: Partial<Settings>) => {
+    if (debugModeSwitch) {
+      debugModeSwitch.selected = newSettings.debugMode || false;
+    }
+    if (ratingThresholdSlider) {
+      ratingThresholdSlider.setValue(newSettings.ratingThreshold || 0);
+    }
+    (document.getElementById('ratingValue') as HTMLElement).textContent = (
+      newSettings.ratingThreshold || 0
+    ).toString();
+
+    const chipSettings = [
+      'blockedUsers',
+      'alwaysShowUsers',
+      'ignoredThreads',
+      'ignoreThreadsContaining',
+    ];
+    chipSettings.forEach(settingKey => {
+      const chipSetEl = document.getElementById(`${settingKey}-chips`);
+      const chipsContainer = chipSetEl?.querySelector(
+        '.mdc-evolution-chip-set__chips',
+      );
+      if (chipsContainer) {
+        chipsContainer.innerHTML = ''; // Clear existing chips
+        const values =
+          (newSettings[settingKey as keyof Settings] as string[]) || [];
+        values.forEach(value => {
+          const chipEl = createChip(value);
+          chipsContainer.appendChild(chipEl);
+        });
+      }
+    });
+
+    (
+      document.getElementById('favoriteRivalsPage-input') as HTMLInputElement
+    ).value = newSettings.favoriteRivalsPage || '';
+  };
+
+  copySettingsButton?.addEventListener('click', () => {
+    const settingsToCopy = getAllSettingsFromUI();
+    const settingsString = JSON.stringify(settingsToCopy, null, 2);
+    void navigator.clipboard.writeText(settingsString).then(() => {
+      if (snackbar) {
+        snackbar.labelText = 'Settings copied to clipboard!';
+        snackbar.open();
+      }
+    });
+  });
+
+  importFromClipboardButton?.addEventListener('click', () => {
+    void navigator.clipboard.readText().then(text => {
+      importSettingsTextarea.value = text;
+    });
+  });
+
+  saveImportedSettingsButton?.addEventListener('click', () => {
+    const settingsString = importSettingsTextarea.value;
+    if (!settingsString) return;
+
+    try {
+      const importedSettings = JSON.parse(settingsString) as Partial<Settings>;
+
+      // Basic validation
+      if (typeof importedSettings !== 'object' || importedSettings === null) {
+        throw new Error('Imported data is not a valid object.');
+      }
+
+      // More specific validation can be added here if needed.
+      const expectedKeys = [
+        'debugMode',
+        'ratingThreshold',
+        'blockedUsers',
+        'alwaysShowUsers',
+        'ignoredThreads',
+        'ignoreThreadsContaining',
+        'favoriteRivalsPage',
+      ];
+      for (const key of expectedKeys) {
+        if (!(key in importedSettings)) {
+          throw new Error(`Missing required setting: ${key}`);
+        }
+      }
+
+      updateUiWithOptions(importedSettings);
+      saveSettings(); // This will also show the snackbar
+    } catch (e: any) {
+      if (snackbar) {
+        snackbar.labelText = `Invalid settings format: ${e.message as string}`;
+        snackbar.open();
+      }
+    }
+  });
+
+  const saveSettings = () => {
+    const newSettings = getAllSettingsFromUI();
 
     chrome.storage.sync.set(newSettings, () => {
       if (chrome.runtime.lastError) {

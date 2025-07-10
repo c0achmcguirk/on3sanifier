@@ -212,6 +212,47 @@
           </div>
           <div class="mdc-card">
             <div class="mdc-card__primary-action">
+              <h5 class="mdc-typography--headline5">Advanced Settings</h5>
+              <div class="on3san-infobox">
+                <div class="on3san-infobox-icon">
+                  <span class="material-icons">
+                    settings
+                    </span>
+                  </div>
+                <div class="on3san-infobox-text">
+                  Export your settings to a string that can be imported into another
+                  browser or saved in a text file.
+                </div>
+              </div>
+              <div class="setting-container">
+                  <button class="mdc-button mdc-button--raised" id="copy-settings">
+                      Copy settings to clipboard
+                  </button>
+              </div>
+              <div class="setting-container">
+                  <div class="mdc-text-field mdc-text-field--textarea" id="import-settings-container">
+                      <textarea id="import-settings-textarea" class="mdc-text-field__input" rows="8" cols="40"></textarea>
+                      <div class="mdc-notched-outline">
+                          <div class="mdc-notched-outline__leading"></div>
+                          <div class="mdc-notched-outline__notch">
+                              <label for="import-settings-textarea" class="mdc-floating-label">Paste settings here</label>
+                          </div>
+                          <div class="mdc-notched-outline__trailing"></div>
+                      </div>
+                  </div>
+              </div>
+              <div class="setting-container">
+                  <button class="mdc-button mdc-button--raised" id="import-from-clipboard">
+                      Paste from clipboard
+                  </button>
+                  <button class="mdc-button mdc-button--raised" id="save-imported-settings">
+                      Save Imported Settings
+                  </button>
+              </div>
+            </div>
+          </div>
+          <div class="mdc-card">
+            <div class="mdc-card__primary-action">
               <h5 class="mdc-typography--headline5">Debug Mode</h5>
               <div class="on3san-infobox">
                 <div class="on3san-infobox-icon">
