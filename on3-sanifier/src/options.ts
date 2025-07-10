@@ -91,9 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  const saveButton = document.getElementById('save') as HTMLElement;
-  new MDCRipple(saveButton);
-
   const ratingThresholdSliderElement =
     document.getElementById('ratingThreshold');
   const ratingValue = document.getElementById('ratingValue') as HTMLElement;
