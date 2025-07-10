@@ -134,12 +134,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const chipSetEl = document.getElementById(
           `${setting}-chips`,
         ) as HTMLElement;
-        values.forEach((value: string) => {
-          const chipEl = createChip(value);
-          chipSetEl
-            .querySelector('.mdc-evolution-chip-set__chips')
-            ?.appendChild(chipEl);
-        });
+        if (setting === 'ignoredThreads') {
+          values.forEach((value: {id: string; title: string}) => {
+            const chipEl = createChip(value.title);
+            chipSetEl
+              .querySelector('.mdc-evolution-chip-set__chips')
+              ?.appendChild(chipEl);
+          });
+        } else {
+          values.forEach((value: string) => {
+            const chipEl = createChip(value);
+            chipSetEl
+              .querySelector('.mdc-evolution-chip-set__chips')
+              ?.appendChild(chipEl);
+          });
+        }
       });
       (
         document.getElementById('favoriteRivalsPage-input') as HTMLInputElement
