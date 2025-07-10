@@ -34,11 +34,7 @@ function createToolbar(): HTMLElement {
     document.body.classList.toggle('on3san-show-all');
     const isShowingAll = document.body.classList.contains('on3san-show-all');
     const newText = isShowingAll ? 'Sanify' : 'Show hidden';
-    document
-      .querySelectorAll('.on3san-toolbar .mdc-button__label')
-      .forEach(buttonLabel => {
-        (buttonLabel as HTMLElement).textContent = newText;
-      });
+    showHiddenButton.querySelector('.mdc-button__label')!.textContent = newText;
   });
 
   newDiv.appendChild(showHiddenButton);
@@ -60,7 +56,8 @@ function createToolbar(): HTMLElement {
     newDiv.appendChild(openUnreadButton);
   } else if (mode === 'inthread') {
     const ignoreThreadButton = document.createElement('button');
-    ignoreThreadButton.className = 'mdc-button mdc-button--raised';
+    ignoreThreadButton.className =
+      'mdc-button mdc-button--raised ignore-thread-button';
     ignoreThreadButton.innerHTML =
       '<span class="mdc-button__label">Ignore thread</span>';
     new MDCRipple(ignoreThreadButton);

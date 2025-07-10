@@ -38,10 +38,10 @@ body.on3san-show-all .on3-sanifier-hidden-post {
   padding: 4px;
 }
 
-.on3san-toolbar .mdc-button--raised {
+.on3san-toolbar .ignore-thread-button.mdc-button--raised {
   background-color: #ffeb3b;
 }
 
-.on3san-toolbar .mdc-button--unelevated {
+.on3san-toolbar .ignore-thread-button.mdc-button--unelevated {
   background-color: #c8e6c9;
 }
