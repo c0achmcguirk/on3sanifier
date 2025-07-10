@@ -10,6 +10,7 @@
     "watch": "npm-run-all --parallel watch:chrome watch:firefox",
     "watch:chrome": "node scripts/build.js --browser=chrome --watch",
     "watch:firefox": "node scripts/build.js --browser=firefox --watch",
+    "build:firefox-reviewer-bundle": "node scripts/build-firefox-reviewer-bundle.js",
     "test": "esbuild src/lib/helpers_test.ts --bundle --outfile=dist-test/bundle.test.js --tsconfig=tsconfig.json && karma start karma.conf.js",
     "lint": "gts lint",
     "fix": "gts fix",
@@ -20,6 +21,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/chrome": "^0.0.268",
+    "archiver": "^7.0.1",
     "esbuild": "^0.25.5",
     "fs-extra": "^11.3.0",
     "gts": "^6.0.2",

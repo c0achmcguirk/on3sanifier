@@ -6,5 +6,6 @@ on3-sanifier/dist
 on3-sanifier/dist-chrome
 on3-sanifier/dist-firefox
 on3-sanifier/dist-test
+on3-sanifier/dist-firefox-reviewer-bundle
 on3-sanifier/src/theme.css
 on3-sanifier/*.zip
