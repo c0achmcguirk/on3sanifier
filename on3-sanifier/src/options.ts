@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     snackbar = new MDCSnackbar(snackbarElement);
   }
 
-  saveButton.addEventListener('click', () => {
+  const saveSettings = () => {
     const newSettings: Partial<Settings> = {};
     newSettings.debugMode = debugModeSwitch?.selected || false;
     settings.forEach(setting => {
@@ -192,6 +192,28 @@ document.addEventListener('DOMContentLoaded', () => {
         snackbar.open();
       }
     });
+  };
+
+  if (ratingThresholdSlider) {
+    ratingThresholdSlider.listen('MDCSlider:change', saveSettings);
+  }
+  if (debugModeSwitch) {
+    debugModeSwitch.listen('change', saveSettings);
+  }
+  document
+    .getElementById('favoriteRivalsPage-input')
+    ?.addEventListener('change', saveSettings);
+
+  settings.forEach(setting => {
+    if (setting === 'ratingThreshold') return;
+    const chipSetEl = document.getElementById(
+      `${setting}-chips`,
+    ) as HTMLElement;
+    chipSetEl.addEventListener('MDCChip:removal', saveSettings);
+    const addButton = document.querySelector(
+      `button[data-setting="${setting}"]`,
+    ) as HTMLElement;
+    addButton.addEventListener('click', saveSettings);
   });
 
   // Initialize all inputs.
