@@ -37,3 +37,11 @@ body.on3san-show-all .on3-sanifier-hidden-post {
   border-radius: 4px;
   padding: 4px;
 }
+
+.on3san-toolbar .mdc-button--raised {
+  background-color: #ffeb3b;
+}
+
+.on3san-toolbar .mdc-button--unelevated {
+  background-color: #c8e6c9;
+}

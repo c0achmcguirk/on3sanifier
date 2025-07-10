@@ -84,8 +84,11 @@ function createToolbar(): HTMLElement {
 
     if (threadId) {
       void chrome.storage.sync.get('ignoredThreads', result => {
-        const ignoredThreads = (result.ignoredThreads || []) as string[];
-        setButtonState(ignoredThreads.includes(threadId));
+        const ignoredThreads = (result.ignoredThreads || []) as {
+          id: string;
+          title: string;
+        }[];
+        setButtonState(ignoredThreads.some(t => t.id === threadId));
       });
     }
 
