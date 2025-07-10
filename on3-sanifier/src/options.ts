@@ -153,6 +153,18 @@ document.addEventListener('DOMContentLoaded', () => {
     snackbar = new MDCSnackbar(snackbarElement);
   }
 
+  const copySettingsButton = document.getElementById(
+    'copy-settings',
+  ) as HTMLElement;
+  const importFromClipboardButton = document.getElementById(
+    'import-from-clipboard',
+  ) as HTMLElement;
+  const importSettingsTextarea = document.getElementById(
+    'import-settings-textarea',
+  ) as HTMLTextAreaElement;
+  new MDCTextField(
+    document.getElementById('import-settings-container') as HTMLElement,
+  );
   const saveImportedSettingsButton = document.getElementById(
     'save-imported-settings',
   ) as HTMLElement;
