@@ -62,9 +62,11 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "on3-sanifier@example.com",
-      "scripts": [
-        "js/background.js"
-      ]
+      "background": {
+        "scripts": [
+          "js/background.js"
+        ]
+      }
     }
   }
 }
