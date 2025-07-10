@@ -3,5 +3,7 @@ on3-sanifier/node_modules
 
 # Build output
 on3-sanifier/dist
+on3-sanifier/dist-chrome
+on3-sanifier/dist-firefox
 on3-sanifier/dist-test
 on3-sanifier/src/theme.css

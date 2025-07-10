@@ -4,10 +4,11 @@ const esbuild = require('esbuild');
 const sass = require('sass');
 
 const isWatch = process.argv.includes('--watch');
+const browser = process.argv.find(arg => arg.startsWith('--browser='))?.split('=')[1] || 'chrome';
+const distDir = path.join(__dirname, `../dist-${browser}`);
 
 const srcDir = path.join(__dirname, '../src');
 const publicDir = path.join(__dirname, '../public');
-const distDir = path.join(__dirname, '../dist');
 const nodeModulesDir = path.join(__dirname, '../node_modules');
 
 async function build() {
@@ -43,18 +44,32 @@ async function build() {
   // Prepare and copy manifest
   const manifestPath = path.join(__dirname, '../manifest.json');
   const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf-8'));
-  // Add any browser-specific modifications here if needed
+
+  if (browser === 'firefox') {
+    delete manifest.background.service_worker;
+    manifest.background.scripts = ['js/background.js'];
+    manifest.browser_specific_settings = {
+      gecko: {
+        id: 'on3-sanifier@example.com',
+      },
+    };
+  } else {
+    // Chrome
+    delete manifest.background.scripts;
+    delete manifest.browser_specific_settings;
+  }
+
   await fs.writeJson(path.join(distDir, 'manifest.json'), manifest, {
     spaces: 2,
   });
 
   if (isWatch) {
     await ctx.watch();
-    console.log('Watching for changes...');
+    console.log(`Watching for changes to build for ${browser}...`);
   } else {
     await ctx.rebuild();
     await ctx.dispose();
-    console.log('Build complete.');
+    console.log(`Build for ${browser} complete.`);
   }
 }
 
