@@ -66,17 +66,21 @@ function createToolbar(): HTMLElement {
     const threadTitle = helpers.getThreadTitleFromUrl(window.location.href);
 
     const setButtonState = (isIgnored: boolean) => {
-      if (isIgnored) {
-        ignoreThreadButton.innerHTML =
-          '<span class="mdc-button__label">Stop ignoring thread</span>';
-        ignoreThreadButton.classList.add('mdc-button--unelevated');
-        ignoreThreadButton.classList.remove('mdc-button--raised');
-      } else {
-        ignoreThreadButton.innerHTML =
-          '<span class="mdc-button__label">Ignore thread</span>';
-        ignoreThreadButton.classList.add('mdc-button--raised');
-        ignoreThreadButton.classList.remove('mdc-button--unelevated');
-      }
+      document
+        .querySelectorAll<HTMLButtonElement>('.ignore-thread-button')
+        .forEach(button => {
+          if (isIgnored) {
+            button.innerHTML =
+              '<span class="mdc-button__label">Stop ignoring thread</span>';
+            button.classList.add('mdc-button--unelevated');
+            button.classList.remove('mdc-button--raised');
+          } else {
+            button.innerHTML =
+              '<span class="mdc-button__label">Ignore thread</span>';
+            button.classList.add('mdc-button--raised');
+            button.classList.remove('mdc-button--unelevated');
+          }
+        });
     };
 
     if (threadId) {
