@@ -29,8 +29,14 @@ body.on3san-show-all .on3-sanifier-hidden-post {
   color: #efefef;
   align-items: center;
   display: flex;
+  gap: 8px;
   padding: 8px;
 }
+
+#on3OpenTabs {
+  margin-left: 16px;
+}
+
 
 .on3san-toolbar img {
   background-color: #fff;
