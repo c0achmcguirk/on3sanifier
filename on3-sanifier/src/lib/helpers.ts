@@ -35,7 +35,10 @@ export async function colorCodePostsByReactions(): Promise<void> {
   const helpers = new On3Helpers();
   const superIgnoredUsers = await helpers.getSuperIgnoredUsers();
 
+  console.log('!!! colorCodePostsByReactions()');
+
   document.querySelectorAll<HTMLElement>('article.message').forEach(post => {
+    console.log(post, '!!! post');
     const reactionCount = getReactionCount(post);
     let backgroundColor = '';
     if (reactionCount >= 16) {
@@ -51,9 +54,12 @@ export async function colorCodePostsByReactions(): Promise<void> {
     const avatar = post.querySelector<HTMLElement>(
       '.message-avatar-wrapper .avatar',
     );
+    console.log(avatar, '!!! avatar');
     if (avatar) {
       const authorId = avatar.dataset.userId;
+      console.log(avatar, '!!! avatar');
       if (authorId) {
+        console.log(authorId, '!!! authorId');
         post.dataset.authorId = authorId;
         helpers.applySuperIgnore(post, superIgnoredUsers);
       }
@@ -1545,11 +1551,11 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    * @param superIgnoredUsers The list of super-ignored users.
    */
   applySuperIgnore(post: HTMLElement, superIgnoredUsers: User[]): void {
+    console.log('!!! applySuperIgnore!');
     const authorId = post.dataset.authorId;
     if (!authorId || !this.isSuperIgnored(authorId, superIgnoredUsers)) {
       return;
     }
-
     // Replace avatar with a clown emoji.
     const avatarWrapper = post.querySelector<HTMLElement>(
       '.message-avatar-wrapper',

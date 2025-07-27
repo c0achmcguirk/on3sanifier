@@ -4,7 +4,8 @@ const esbuild = require('esbuild');
 const sass = require('sass');
 
 const isWatch = process.argv.includes('--watch');
-const browser = process.argv.find(arg => arg.startsWith('--browser='))?.split('=')[1] || 'chrome';
+const browserArg = process.argv.find(arg => arg.startsWith('--browser='));
+const browser = browserArg ? browserArg.split('=')[1] : 'chrome';
 const distDir = path.join(__dirname, `../dist-${browser}`);
 
 const srcDir = path.join(__dirname, '../src');
@@ -26,6 +27,7 @@ async function build() {
     ],
     bundle: true,
     outdir: path.join(distDir, 'js'),
+    sourcemap: 'inline',
   });
 
   // Compile Sass

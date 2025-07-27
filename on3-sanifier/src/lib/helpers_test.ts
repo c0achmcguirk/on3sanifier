@@ -1,3 +1,4 @@
+import './chrome_mock';
 import {
   On3Helpers,
   getReactionCount,
@@ -63,31 +64,63 @@ describe('colorCodePostsByReactions', () => {
     return post;
   };
 
+  beforeEach(() => {
+    // Mock the entire chrome object for these tests to ensure storage is available.
+    (window as any).chrome = {
+      runtime: {
+        sendMessage: () => {},
+        getURL: (path: string) => path,
+        getManifest: () => ({
+          manifest_version: 3,
+          name: 'on3-sanifier',
+          version: '1.0.0',
+        }),
+        openOptionsPage: () => {},
+      },
+      extension: {
+        inIncognitoContext: false,
+      },
+      storage: {
+        sync: {
+          get: (keys: any, callback: (items: {[key: string]: any}) => void) => {
+            callback({});
+          },
+          set: (items: any, callback: () => void) => {
+            callback();
+          },
+        },
+      },
+      tabs: {
+        create: () => {},
+      },
+    };
+  });
+
   afterEach(() => {
     document.body.innerHTML = '';
   });
 
-  it('should set backgroundColor to #efcb3e for reaction count >= 16', () => {
+  it('should set backgroundColor to #efcb3e for reaction count >= 16', async () => {
     const post = createMockPost(20);
-    colorCodePostsByReactions();
+    await colorCodePostsByReactions();
     expect(post.style.backgroundColor).toBe('rgb(239, 203, 62)'); // #efcb3e
   });
 
-  it('should set backgroundColor to #f6dc76 for reaction count >= 10', () => {
+  it('should set backgroundColor to #f6dc76 for reaction count >= 10', async () => {
     const post = createMockPost(12);
-    colorCodePostsByReactions();
+    await colorCodePostsByReactions();
     expect(post.style.backgroundColor).toBe('rgb(246, 220, 118)'); // #f6dc76
   });
 
-  it('should set backgroundColor to #faeaab for reaction count >= 5', () => {
+  it('should set backgroundColor to #faeaab for reaction count >= 5', async () => {
     const post = createMockPost(7);
-    colorCodePostsByReactions();
+    await colorCodePostsByReactions();
     expect(post.style.backgroundColor).toBe('rgb(250, 234, 171)'); // #faeaab
   });
 
-  it('should not set backgroundColor for reaction count < 5', () => {
+  it('should not set backgroundColor for reaction count < 5', async () => {
     const post = createMockPost(3);
-    colorCodePostsByReactions();
+    await colorCodePostsByReactions();
     expect(post.style.backgroundColor).toBe('');
   });
 });
@@ -104,7 +137,8 @@ describe('filterPosts', () => {
     document.body.appendChild(post);
 
     const settings = {blockedUsers: ['blockeduser']};
-    filterPosts(settings, document);
+    const helpers = new On3Helpers();
+    filterPosts(settings, document, helpers);
 
     expect(post.classList.contains('on3-sanifier-hidden-post')).toBe(true);
   });
@@ -119,7 +153,8 @@ describe('filterPosts', () => {
       blockedUsers: ['alwaysshowuser'],
       alwaysShowUsers: ['alwaysshowuser'],
     };
-    filterPosts(settings, document);
+    const helpers = new On3Helpers();
+    filterPosts(settings, document, helpers);
 
     expect(post.classList.contains('on3-sanifier-hidden-post')).toBe(false);
   });
@@ -132,7 +167,8 @@ describe('filterPosts', () => {
     document.body.appendChild(post);
 
     const settings = {ratingThreshold: 5};
-    filterPosts(settings, document);
+    const helpers = new On3Helpers();
+    filterPosts(settings, document, helpers);
 
     expect(post.classList.contains('on3-sanifier-hidden-post')).toBe(true);
   });
@@ -208,8 +244,7 @@ describe('On3Helpers', () => {
   describe('getThreadTitleFromUrl', () => {
     it('should return the thread title from a URL', () => {
       const helpers = new On3Helpers();
-      const url =
-        'https://www.on3.com/boards/threads/some-thread-title.12345/';
+      const url = 'https://www.on3.com/boards/threads/some-thread-title.12345/';
       expect(helpers.getThreadTitleFromUrl(url)).toBe('some thread title');
     });
 
