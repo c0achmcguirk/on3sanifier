@@ -6,7 +6,7 @@ import {
 } from './lib/helpers';
 import {MDCRipple} from '@material/ripple';
 
-function createToolbar(): HTMLElement {
+function createToolbar(hiddenCount: number, mode: string | undefined): HTMLElement {
   const newDiv = document.createElement('div');
   newDiv.className = 'on3san-toolbar';
 
@@ -30,6 +30,9 @@ function createToolbar(): HTMLElement {
     '<span class="mdc-button__label">Show hidden</span>';
   new MDCRipple(showHiddenButton);
 
+  // Set initial state and tooltip for the showHiddenButton.
+  updateShowHiddenButtonState(showHiddenButton, hiddenCount, mode);
+
   showHiddenButton.addEventListener('click', () => {
     document.body.classList.toggle('on3san-show-all');
     const isShowingAll = document.body.classList.contains('on3san-show-all');
@@ -43,7 +46,6 @@ function createToolbar(): HTMLElement {
   newDiv.appendChild(showHiddenButton);
 
   const helpers = new On3Helpers();
-  const mode = helpers.detectMode(window.location.href);
 
   if (mode === 'inforum' || mode === 'inlist') {
     const openUnreadButton = document.createElement('button');
@@ -129,7 +131,21 @@ function createToolbar(): HTMLElement {
   return newDiv;
 }
 
-function injectCustomDivs(): void {
+function updateShowHiddenButtonState(button: HTMLButtonElement, hiddenCount: number, mode: string | undefined): void {
+  if (hiddenCount === 0) {
+    button.disabled = true;
+    if (mode === 'inthread') {
+      button.title = 'No posts are hidden';
+    } else if (mode === 'inforum' || mode === 'inlist') {
+      button.title = 'No threads are hidden';
+    }
+  } else {
+    button.disabled = false;
+    button.title = ''; // Clear tooltip when items are hidden
+  }
+}
+
+function injectCustomDivs(hiddenPostsCount: number, hiddenThreadsCount: number, mode: string | undefined): void {
   // Inject the CSS for the snackbar.
   const link = document.createElement('link');
   link.rel = 'stylesheet';
@@ -144,8 +160,8 @@ function injectCustomDivs(): void {
 
   const targetContainer = document.querySelector('.p-body-content');
   if (targetContainer) {
-    const topToolbar = createToolbar();
-    const bottomToolbar = createToolbar();
+    const topToolbar = createToolbar(mode === 'inthread' ? hiddenPostsCount : hiddenThreadsCount, mode);
+    const bottomToolbar = createToolbar(mode === 'inthread' ? hiddenPostsCount : hiddenThreadsCount, mode);
     targetContainer.prepend(topToolbar);
     targetContainer.append(bottomToolbar);
   }
@@ -170,6 +186,9 @@ function showSnackbar(message: string): void {
 // Function to filter posts and threads based on user settings.
 function filterContent(): void {
   if (!chrome.runtime?.id) return;
+  const helpers = new On3Helpers();
+  const mode = helpers.detectMode(window.location.href);
+
   chrome.storage.sync.get(
     [
       'blockedUsers',
@@ -188,8 +207,6 @@ function filterContent(): void {
       const hiddenPostsCount = filterPosts(settings, document);
       const hiddenThreadsCount = filterThreads(settings, document);
 
-      const helpers = new On3Helpers();
-      const mode = helpers.detectMode(window.location.href);
       const isShowingAll = document.body.classList.contains('on3san-show-all');
 
       let message = '';
@@ -206,15 +223,24 @@ function filterContent(): void {
       if (message) {
         showSnackbar(message);
       }
+
+      // Update the button state after filtering.
+      const showHiddenButton = document.querySelector('.on3san-toolbar .mdc-button') as HTMLButtonElement;
+      if (showHiddenButton) {
+        updateShowHiddenButtonState(showHiddenButton, mode === 'inthread' ? hiddenPostsCount : hiddenThreadsCount, mode);
+      }
+
+      // Inject custom divs and color code posts after settings are loaded and content is filtered.
+      injectCustomDivs(hiddenPostsCount, hiddenThreadsCount, mode);
+      colorCodePostsByReactions();
     },
   );
 }
 
 function runSanifier(): void {
   filterContent();
-  injectCustomDivs();
-  colorCodePostsByReactions();
 }
+
 
 // Debounce function to limit how often a function is called.
 function debounce<T extends (...args: any[]) => void>(func: T, delay: number): (...args: Parameters<T>) => void {

@@ -10,7 +10,7 @@ This document tracks the development tasks for the project.
   - "Displaying XX hidden threads"
   - "Hiding YY threads"
 - Add links for Firefox (https://addons.mozilla.org/en-US/firefox/addon/on3-sanifier/) and Chrome Web Store (https://chromewebstore.google.com/detail/on3-sanifier/nchaljlnpleoklkakenpbeinpdhkocpj) to the popup.html file. It should list one below the other. Remove any "link coming later" messaging.
-- Disable "Show hidden" button when nothing is hidden.
+- [x] Disable "Show hidden" button when nothing is hidden.
   - Tooltip should say "No posts are hidden" on post pages.
   - Tooltip should say "No threads are hidden" on thread list pages.
 - Add a keyboard shortcut (Alt+Up arrow) to show/hide hidden posts.
