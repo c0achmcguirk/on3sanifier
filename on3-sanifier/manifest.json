@@ -40,6 +40,15 @@
     "activeTab",
     "tabs"
   ],
+  "commands": {
+    "toggle-hidden": {
+      "suggested_key": {
+        "default": "Alt+Up",
+        "mac": "Alt+Up"
+      },
+      "description": "Toggle visibility of hidden posts/threads."
+    }
+  },
   "web_accessible_resources": [
     {
       "resources": [

@@ -241,6 +241,14 @@ function runSanifier(): void {
   filterContent();
 }
 
+chrome.runtime.onMessage.addListener(request => {
+  if (request.action === 'toggleHidden') {
+    const showHiddenButton = document.querySelector('.on3san-toolbar .mdc-button') as HTMLButtonElement;
+    if (showHiddenButton) {
+      showHiddenButton.click(); // Simulate a click on the button
+    }
+  }
+});
 
 // Debounce function to limit how often a function is called.
 function debounce<T extends (...args: any[]) => void>(func: T, delay: number): (...args: Parameters<T>) => void {
