@@ -31,7 +31,10 @@ export function getReactionCount(post: HTMLElement): number {
   return bdiCount + othersCount;
 }
 
-export function colorCodePostsByReactions(): void {
+export async function colorCodePostsByReactions(): Promise<void> {
+  const helpers = new On3Helpers();
+  const superIgnoredUsers = await helpers.getSuperIgnoredUsers();
+
   document.querySelectorAll<HTMLElement>('article.message').forEach(post => {
     const reactionCount = getReactionCount(post);
     let backgroundColor = '';
@@ -44,6 +47,17 @@ export function colorCodePostsByReactions(): void {
     }
 
     post.style.backgroundColor = backgroundColor;
+
+    const avatar = post.querySelector<HTMLElement>(
+      '.message-avatar-wrapper .avatar',
+    );
+    if (avatar) {
+      const authorId = avatar.dataset.userId;
+      if (authorId) {
+        post.dataset.authorId = authorId;
+        helpers.applySuperIgnore(post, superIgnoredUsers);
+      }
+    }
   });
 }
 
@@ -61,14 +75,17 @@ export function filterPosts(
     alwaysShowUsers?: string[];
     ratingThreshold?: number;
     debugMode?: boolean;
+    superIgnoredUsers?: User[];
   },
   document: Document,
+  helpers: On3Helpers,
 ): number {
   debugMode = settings.debugMode || false;
   const {
     blockedUsers = [],
     alwaysShowUsers = [],
     ratingThreshold = 0,
+    superIgnoredUsers = [],
   } = settings;
 
   let hiddenCount = 0;
@@ -76,6 +93,11 @@ export function filterPosts(
   document.querySelectorAll<HTMLElement>('article.message').forEach(post => {
     const author = post.dataset.author?.toLowerCase();
     if (!author) return;
+
+    const authorId = post.dataset.authorId;
+    if (authorId && helpers.isSuperIgnored(authorId, superIgnoredUsers)) {
+      helpers.applySuperIgnore(post, superIgnoredUsers);
+    }
 
     const lowercasedAlwaysShowUsers = alwaysShowUsers.map((u: string) =>
       u.toLowerCase(),
@@ -1475,23 +1497,106 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    * @param userId The user ID to toggle.
    * @returns A promise that resolves with the new super ignored status (true if super ignored, false otherwise).
    */
-  toggleSuperIgnoreUser(username: string, userId: string): Promise<boolean> {
-    return new Promise(resolve => {
-      void this.getPreference({blockedUsers: []}).then(items => {
-        let blockedUsers = (items.blockedUsers || []) as string[];
-        const lowercasedUsername = username.toLowerCase();
-        const isCurrentlyBlocked = blockedUsers.includes(lowercasedUsername);
+  async toggleSuperIgnoreUser(
+    username: string,
+    userId: string,
+  ): Promise<boolean> {
+    const superIgnoredUsers = await this.getSuperIgnoredUsers();
+    const isSuperIgnored = this.isSuperIgnored(userId, superIgnoredUsers);
 
-        if (isCurrentlyBlocked) {
-          blockedUsers = blockedUsers.filter(u => u !== lowercasedUsername);
-        } else {
-          blockedUsers.push(lowercasedUsername);
-        }
-
-        void this.setPreference({blockedUsers: blockedUsers}).then(() => {
-          resolve(!isCurrentlyBlocked);
-        });
-      });
-    });
+    if (isSuperIgnored) {
+      const newSuperIgnoredUsers = superIgnoredUsers.filter(
+        user => user.id !== userId,
+      );
+      await this.setPreference({superIgnoredUsers: newSuperIgnoredUsers});
+      return false;
+    } else {
+      const newSuperIgnoredUsers = [
+        ...superIgnoredUsers,
+        {id: userId, name: username},
+      ];
+      await this.setPreference({superIgnoredUsers: newSuperIgnoredUsers});
+      return true;
+    }
   }
+
+  /**
+   * Gets the list of super-ignored users.
+   * @returns A promise that resolves with an array of super-ignored users.
+   */
+  async getSuperIgnoredUsers(): Promise<User[]> {
+    const items = await this.getPreference({superIgnoredUsers: []});
+    return items.superIgnoredUsers as User[];
+  }
+
+  /**
+   * Checks if a user is super-ignored.
+   * @param userId The user ID to check.
+   * @param superIgnoredUsers The list of super-ignored users.
+   * @returns True if the user is super-ignored, false otherwise.
+   */
+  isSuperIgnored(userId: string, superIgnoredUsers: User[]): boolean {
+    return superIgnoredUsers.some(user => user.id === userId);
+  }
+
+  /**
+   * Applies the "Super Ignore" treatment to a post element.
+   * @param post The post element to modify.
+   * @param superIgnoredUsers The list of super-ignored users.
+   */
+  applySuperIgnore(post: HTMLElement, superIgnoredUsers: User[]): void {
+    const authorId = post.dataset.authorId;
+    if (!authorId || !this.isSuperIgnored(authorId, superIgnoredUsers)) {
+      return;
+    }
+
+    // Replace avatar with a clown emoji
+    const avatar = post.querySelector<HTMLElement>('.message-avatar-wrapper');
+    if (avatar) {
+      avatar.innerHTML = '<span class="clown-emoji">🤡</span>';
+    }
+
+    // Change username
+    const usernameElement = post.querySelector<HTMLElement>(
+      '.message-name .username',
+    );
+    if (usernameElement) {
+      const originalUsername = usernameElement.textContent;
+      usernameElement.textContent = `Clown: ${originalUsername}`;
+    }
+
+    // Prepend and append text to the post content
+    const messageContent = post.querySelector<HTMLElement>(
+      '.message-content .bbWrapper',
+    );
+    if (messageContent) {
+      const beforeText = document.createElement('p');
+      beforeText.textContent =
+        'You should probably ignore this, because I am a clown.';
+      const afterText = document.createElement('p');
+      afterText.textContent =
+        'Finally, ignore most of what I wrote above, because I am an absolute clown.';
+      messageContent.prepend(beforeText);
+      messageContent.append(afterText);
+    }
+
+    // Hide reaction usernames
+    const reactionsBar = post.querySelector<HTMLElement>('.reactionsBar-link');
+    if (reactionsBar) {
+      reactionsBar.textContent = 'A clown was reacted to';
+    }
+
+    // Change username in quotes
+    const quoteUsername = post.querySelector<HTMLElement>(
+      '.bbCodeBlock-sourceJump a.username',
+    );
+    if (quoteUsername) {
+      quoteUsername.textContent = 'A clown said:';
+    }
+  }
+}
+
+export interface User {
+  id: string;
+  name: string;
 }

@@ -8,7 +8,10 @@ import {
 } from './lib/helpers';
 import {MDCRipple} from '@material/ripple';
 
-function createToolbar(hiddenCount: number, mode: string | undefined): HTMLElement {
+function createToolbar(
+  hiddenCount: number,
+  mode: string | undefined,
+): HTMLElement {
   const newDiv = document.createElement('div');
   newDiv.className = 'on3san-toolbar';
 
@@ -133,7 +136,11 @@ function createToolbar(hiddenCount: number, mode: string | undefined): HTMLEleme
   return newDiv;
 }
 
-function updateShowHiddenButtonState(button: HTMLButtonElement, hiddenCount: number, mode: string | undefined): void {
+function updateShowHiddenButtonState(
+  button: HTMLButtonElement,
+  hiddenCount: number,
+  mode: string | undefined,
+): void {
   if (hiddenCount === 0) {
     button.disabled = true;
     if (mode === 'inthread') {
@@ -147,7 +154,11 @@ function updateShowHiddenButtonState(button: HTMLButtonElement, hiddenCount: num
   }
 }
 
-function injectCustomDivs(hiddenPostsCount: number, hiddenThreadsCount: number, mode: string | undefined): void {
+function injectCustomDivs(
+  hiddenPostsCount: number,
+  hiddenThreadsCount: number,
+  mode: string | undefined,
+): void {
   // Inject the CSS for the snackbar.
   const link = document.createElement('link');
   link.rel = 'stylesheet';
@@ -162,8 +173,14 @@ function injectCustomDivs(hiddenPostsCount: number, hiddenThreadsCount: number, 
 
   const targetContainer = document.querySelector('.p-body-content');
   if (targetContainer) {
-    const topToolbar = createToolbar(mode === 'inthread' ? hiddenPostsCount : hiddenThreadsCount, mode);
-    const bottomToolbar = createToolbar(mode === 'inthread' ? hiddenPostsCount : hiddenThreadsCount, mode);
+    const topToolbar = createToolbar(
+      mode === 'inthread' ? hiddenPostsCount : hiddenThreadsCount,
+      mode,
+    );
+    const bottomToolbar = createToolbar(
+      mode === 'inthread' ? hiddenPostsCount : hiddenThreadsCount,
+      mode,
+    );
     targetContainer.prepend(topToolbar);
     targetContainer.append(bottomToolbar);
   }
@@ -178,32 +195,49 @@ function injectSuperIgnoreButton(hovercard: HTMLElement): void {
   console.log('injectSuperIgnoreButton called with hovercard:', hovercard);
   // Check if the button already exists
   if (hovercard.querySelector('.on3san-super-ignore-button')) {
-    console.log('Super Ignore button already exists on this hovercard. Skipping.');
+    console.log(
+      'Super Ignore button already exists on this hovercard. Skipping.',
+    );
     return;
   }
 
-  const buttonGroup = hovercard.querySelector('.memberTooltip-actions .buttonGroup');
-  const usernameElement = hovercard.querySelector('.memberTooltip-name .username') as HTMLElement;
+  const buttonGroup = hovercard.querySelector(
+    '.memberTooltip-actions .buttonGroup',
+  );
+  const usernameElement = hovercard.querySelector(
+    '.memberTooltip-name .username',
+  ) as HTMLElement;
 
   if (buttonGroup && usernameElement) {
-    console.log('buttonGroup and usernameElement found.', {buttonGroup, usernameElement});
+    console.log('buttonGroup and usernameElement found.', {
+      buttonGroup,
+      usernameElement,
+    });
     const username = usernameElement.textContent?.trim();
     const userId = usernameElement.dataset.userId;
 
     if (username && userId) {
-      console.log(`Attempting to inject button for user: ${username} (ID: ${userId})`);
+      console.log(
+        `Attempting to inject button for user: ${username} (ID: ${userId})`,
+      );
       const superIgnoreButton = document.createElement('button');
-      superIgnoreButton.className = 'mdc-button mdc-button--raised on3san-super-ignore-button'; // Add unique class
-      superIgnoreButton.innerHTML = '<span class="mdc-button__label">Super Ignore</span>';
+      superIgnoreButton.className =
+        'mdc-button mdc-button--raised on3san-super-ignore-button'; // Add unique class
+      superIgnoreButton.innerHTML =
+        '<span class="mdc-button__label">Super Ignore</span>';
       new MDCRipple(superIgnoreButton);
 
       superIgnoreButton.addEventListener('click', () => {
         const helpers = new On3Helpers();
-        void helpers.toggleSuperIgnoreUser(username, userId).then(isSuperIgnored => {
-          console.log(`User ${username} (ID: ${userId}) is now Super Ignored: ${isSuperIgnored}`);
-          // Optionally update button state or show a snackbar here
-          runSanifier(true); // Re-run sanifier to apply changes and show snackbar
-        });
+        void helpers
+          .toggleSuperIgnoreUser(username, userId)
+          .then(isSuperIgnored => {
+            console.log(
+              `User ${username} (ID: ${userId}) is now Super Ignored: ${isSuperIgnored}`,
+            );
+            // Optionally update button state or show a snackbar here
+            runSanifier(true); // Re-run sanifier to apply changes and show snackbar
+          });
       });
 
       buttonGroup.appendChild(superIgnoreButton);
@@ -212,7 +246,10 @@ function injectSuperIgnoreButton(hovercard: HTMLElement): void {
       console.log('Username or userId not found.', {username, userId});
     }
   } else {
-    console.log('buttonGroup or usernameElement not found.', {buttonGroup, usernameElement});
+    console.log('buttonGroup or usernameElement not found.', {
+      buttonGroup,
+      usernameElement,
+    });
   }
 }
 
@@ -228,13 +265,18 @@ function showSnackbar(message: string): void {
 }
 
 // Function to filter posts and threads based on user settings.
-function filterContentAndGetCounts(settings: any, document: Document, mode: string | undefined): {hiddenPostsCount: number; hiddenThreadsCount: number} {
-  const hiddenPostsCount = filterPosts(settings, document);
+function filterContentAndGetCounts(
+  settings: any,
+  document: Document,
+  mode: string | undefined,
+  helpers: On3Helpers,
+): {hiddenPostsCount: number; hiddenThreadsCount: number} {
+  const hiddenPostsCount = filterPosts(settings, document, helpers);
   const hiddenThreadsCount = filterThreads(settings, document);
   return {hiddenPostsCount, hiddenThreadsCount};
 }
 
-function runSanifier(showSnackbarOnToggle: boolean = false): void {
+function runSanifier(showSnackbarOnToggle = false): void {
   if (!chrome.runtime?.id) return;
   const helpers = new On3Helpers();
   const mode = helpers.detectMode(window.location.href);
@@ -242,7 +284,7 @@ function runSanifier(showSnackbarOnToggle: boolean = false): void {
   // Inject custom divs and color code posts immediately.
   // The counts will be updated asynchronously once settings are loaded.
   injectCustomDivs(0, 0, mode); // Pass initial 0 counts, will be updated later
-  colorCodePostsByReactions();
+  void colorCodePostsByReactions();
 
   chrome.storage.sync.get(
     [
@@ -252,6 +294,7 @@ function runSanifier(showSnackbarOnToggle: boolean = false): void {
       'ignoreThreadsContaining',
       'ratingThreshold',
       'debugMode',
+      'superIgnoredUsers',
     ],
     settings => {
       if (chrome.runtime.lastError) {
@@ -259,16 +302,28 @@ function runSanifier(showSnackbarOnToggle: boolean = false): void {
         return;
       }
 
-      const {hiddenPostsCount, hiddenThreadsCount} = filterContentAndGetCounts(settings, document, mode);
+      const {hiddenPostsCount, hiddenThreadsCount} = filterContentAndGetCounts(
+        settings,
+        document,
+        mode,
+        helpers,
+      );
 
       // Update the button state after filtering.
-      const showHiddenButton = document.querySelector('.on3san-toolbar .mdc-button') as HTMLButtonElement;
+      const showHiddenButton = document.querySelector(
+        '.on3san-toolbar .mdc-button',
+      ) as HTMLButtonElement;
       if (showHiddenButton) {
-        updateShowHiddenButtonState(showHiddenButton, mode === 'inthread' ? hiddenPostsCount : hiddenThreadsCount, mode);
+        updateShowHiddenButtonState(
+          showHiddenButton,
+          mode === 'inthread' ? hiddenPostsCount : hiddenThreadsCount,
+          mode,
+        );
       }
 
       if (showSnackbarOnToggle) {
-        const isShowingAll = document.body.classList.contains('on3san-show-all');
+        const isShowingAll =
+          document.body.classList.contains('on3san-show-all');
         let message = '';
         if (mode === 'inthread') {
           message = isShowingAll
@@ -287,10 +342,11 @@ function runSanifier(showSnackbarOnToggle: boolean = false): void {
   );
 }
 
-
 chrome.runtime.onMessage.addListener(request => {
   if (request.action === 'toggleHidden') {
-    const showHiddenButton = document.querySelector('.on3san-toolbar .mdc-button') as HTMLButtonElement;
+    const showHiddenButton = document.querySelector(
+      '.on3san-toolbar .mdc-button',
+    ) as HTMLButtonElement;
     if (showHiddenButton) {
       showHiddenButton.click(); // Simulate a click on the button
     }
@@ -298,12 +354,14 @@ chrome.runtime.onMessage.addListener(request => {
 });
 
 // Debounce function to limit how often a function is called.
-function debounce<T extends (...args: any[]) => void>(func: T, delay: number): (...args: Parameters<T>) => void {
+function debounce<T extends (...args: any[]) => void>(
+  func: T,
+  delay: number,
+): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout>;
-  return function(this: ThisParameterType<T>, ...args: Parameters<T>) {
-    const context = this;
+  return (...args: Parameters<T>) => {
     clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(context, args), delay);
+    timeout = setTimeout(() => func(...args), delay);
   };
 }
 
