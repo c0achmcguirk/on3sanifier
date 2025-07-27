@@ -1,3 +1,5 @@
+console.log('on3 Sanifier content script loaded.');
+
 import {
   colorCodePostsByReactions,
   filterPosts,
@@ -40,7 +42,7 @@ function createToolbar(hiddenCount: number, mode: string | undefined): HTMLEleme
     showHiddenButton.querySelector('.mdc-button__label')!.textContent = newText;
 
     // Re-run the sanifier to update counts and show snackbar.
-    runSanifier();
+    runSanifier(true); // Pass true to show snackbar
   });
 
   newDiv.appendChild(showHiddenButton);
@@ -172,6 +174,48 @@ function injectCustomDivs(hiddenPostsCount: number, hiddenThreadsCount: number, 
   document.body.appendChild(snackbar);
 }
 
+function injectSuperIgnoreButton(hovercard: HTMLElement): void {
+  console.log('injectSuperIgnoreButton called with hovercard:', hovercard);
+  // Check if the button already exists
+  if (hovercard.querySelector('.on3san-super-ignore-button')) {
+    console.log('Super Ignore button already exists on this hovercard. Skipping.');
+    return;
+  }
+
+  const buttonGroup = hovercard.querySelector('.memberTooltip-actions .buttonGroup');
+  const usernameElement = hovercard.querySelector('.memberTooltip-name .username') as HTMLElement;
+
+  if (buttonGroup && usernameElement) {
+    console.log('buttonGroup and usernameElement found.', {buttonGroup, usernameElement});
+    const username = usernameElement.textContent?.trim();
+    const userId = usernameElement.dataset.userId;
+
+    if (username && userId) {
+      console.log(`Attempting to inject button for user: ${username} (ID: ${userId})`);
+      const superIgnoreButton = document.createElement('button');
+      superIgnoreButton.className = 'mdc-button mdc-button--raised on3san-super-ignore-button'; // Add unique class
+      superIgnoreButton.innerHTML = '<span class="mdc-button__label">Super Ignore</span>';
+      new MDCRipple(superIgnoreButton);
+
+      superIgnoreButton.addEventListener('click', () => {
+        const helpers = new On3Helpers();
+        void helpers.toggleSuperIgnoreUser(username, userId).then(isSuperIgnored => {
+          console.log(`User ${username} (ID: ${userId}) is now Super Ignored: ${isSuperIgnored}`);
+          // Optionally update button state or show a snackbar here
+          runSanifier(true); // Re-run sanifier to apply changes and show snackbar
+        });
+      });
+
+      buttonGroup.appendChild(superIgnoreButton);
+      console.log('Super Ignore button appended.');
+    } else {
+      console.log('Username or userId not found.', {username, userId});
+    }
+  } else {
+    console.log('buttonGroup or usernameElement not found.', {buttonGroup, usernameElement});
+  }
+}
+
 function showSnackbar(message: string): void {
   const toast = document.getElementById('toast');
   if (toast) {
@@ -184,10 +228,21 @@ function showSnackbar(message: string): void {
 }
 
 // Function to filter posts and threads based on user settings.
-function filterContent(): void {
+function filterContentAndGetCounts(settings: any, document: Document, mode: string | undefined): {hiddenPostsCount: number; hiddenThreadsCount: number} {
+  const hiddenPostsCount = filterPosts(settings, document);
+  const hiddenThreadsCount = filterThreads(settings, document);
+  return {hiddenPostsCount, hiddenThreadsCount};
+}
+
+function runSanifier(showSnackbarOnToggle: boolean = false): void {
   if (!chrome.runtime?.id) return;
   const helpers = new On3Helpers();
   const mode = helpers.detectMode(window.location.href);
+
+  // Inject custom divs and color code posts immediately.
+  // The counts will be updated asynchronously once settings are loaded.
+  injectCustomDivs(0, 0, mode); // Pass initial 0 counts, will be updated later
+  colorCodePostsByReactions();
 
   chrome.storage.sync.get(
     [
@@ -204,25 +259,7 @@ function filterContent(): void {
         return;
       }
 
-      const hiddenPostsCount = filterPosts(settings, document);
-      const hiddenThreadsCount = filterThreads(settings, document);
-
-      const isShowingAll = document.body.classList.contains('on3san-show-all');
-
-      let message = '';
-      if (mode === 'inthread') {
-        message = isShowingAll
-          ? `Displaying ${hiddenPostsCount} hidden posts.`
-          : `Hiding ${hiddenPostsCount} posts.`;
-      } else if (mode === 'inforum' || mode === 'inlist') {
-        message = isShowingAll
-          ? `Displaying ${hiddenThreadsCount} hidden threads.`
-          : `Hiding ${hiddenThreadsCount} threads.`;
-      }
-
-      if (message) {
-        showSnackbar(message);
-      }
+      const {hiddenPostsCount, hiddenThreadsCount} = filterContentAndGetCounts(settings, document, mode);
 
       // Update the button state after filtering.
       const showHiddenButton = document.querySelector('.on3san-toolbar .mdc-button') as HTMLButtonElement;
@@ -230,16 +267,26 @@ function filterContent(): void {
         updateShowHiddenButtonState(showHiddenButton, mode === 'inthread' ? hiddenPostsCount : hiddenThreadsCount, mode);
       }
 
-      // Inject custom divs and color code posts after settings are loaded and content is filtered.
-      injectCustomDivs(hiddenPostsCount, hiddenThreadsCount, mode);
-      colorCodePostsByReactions();
+      if (showSnackbarOnToggle) {
+        const isShowingAll = document.body.classList.contains('on3san-show-all');
+        let message = '';
+        if (mode === 'inthread') {
+          message = isShowingAll
+            ? `Displaying ${hiddenPostsCount} hidden posts.`
+            : `Hiding ${hiddenPostsCount} posts.`;
+        } else if (mode === 'inforum' || mode === 'inlist') {
+          message = isShowingAll
+            ? `Displaying ${hiddenThreadsCount} hidden threads.`
+            : `Hiding ${hiddenThreadsCount} threads.`;
+        }
+        if (message) {
+          showSnackbar(message);
+        }
+      }
     },
   );
 }
 
-function runSanifier(): void {
-  filterContent();
-}
 
 chrome.runtime.onMessage.addListener(request => {
   if (request.action === 'toggleHidden') {
@@ -267,9 +314,21 @@ runSanifier();
 // Debounce the runSanifier function to avoid excessive calls.
 const debouncedRunSanifier = debounce(runSanifier, 500); // 500ms debounce
 
-const targetNode = document.querySelector('.p-body-content');
+const targetNode = document.body;
 if (targetNode) {
-  const observer = new MutationObserver(debouncedRunSanifier);
+  const observer = new MutationObserver(mutations => {
+    debouncedRunSanifier(); // Keep this for general filtering
+
+    // After general filtering, check for hovercards
+    const hovercards = document.querySelectorAll('.tooltip--member');
+    console.log('Found hovercards:', hovercards);
+    hovercards.forEach(hovercard => {
+      // Check if the button already exists to prevent duplicates
+      if (!hovercard.querySelector('.on3san-super-ignore-button')) {
+        injectSuperIgnoreButton(hovercard as HTMLElement);
+      }
+    });
+  });
   observer.observe(targetNode, {childList: true, subtree: true});
 } else {
   console.warn('on3 Sanifier: Could not find .p-body-content to observe.');

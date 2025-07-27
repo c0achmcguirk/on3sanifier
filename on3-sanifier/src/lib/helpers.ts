@@ -77,9 +77,6 @@ export function filterPosts(
     const author = post.dataset.author?.toLowerCase();
     if (!author) return;
 
-    const lowercasedBlockedUsers = blockedUsers.map((u: string) =>
-      u.toLowerCase(),
-    );
     const lowercasedAlwaysShowUsers = alwaysShowUsers.map((u: string) =>
       u.toLowerCase(),
     );
@@ -89,7 +86,7 @@ export function filterPosts(
 
     if (lowercasedAlwaysShowUsers.includes(author)) {
       // This user's posts should always be shown, so we don't set a hideReason.
-    } else if (lowercasedBlockedUsers.includes(author)) {
+    } else if (blockedUsers.includes(author)) {
       hideReason = `author '${author}' is in the blocked user list.`;
     } else if (reactionCount < ratingThreshold) {
       hideReason = `it has ${reactionCount} reaction(s) and the rating threshold is ${ratingThreshold}.`;
@@ -1469,6 +1466,32 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
         }
       }
       resolve();
+    });
+  }
+
+  /**
+   * Toggles the super ignore status for a given user.
+   * @param username The username to toggle.
+   * @param userId The user ID to toggle.
+   * @returns A promise that resolves with the new super ignored status (true if super ignored, false otherwise).
+   */
+  toggleSuperIgnoreUser(username: string, userId: string): Promise<boolean> {
+    return new Promise(resolve => {
+      void this.getPreference({blockedUsers: []}).then(items => {
+        let blockedUsers = (items.blockedUsers || []) as string[];
+        const lowercasedUsername = username.toLowerCase();
+        const isCurrentlyBlocked = blockedUsers.includes(lowercasedUsername);
+
+        if (isCurrentlyBlocked) {
+          blockedUsers = blockedUsers.filter(u => u !== lowercasedUsername);
+        } else {
+          blockedUsers.push(lowercasedUsername);
+        }
+
+        void this.setPreference({blockedUsers: blockedUsers}).then(() => {
+          resolve(!isCurrentlyBlocked);
+        });
+      });
     });
   }
 }
