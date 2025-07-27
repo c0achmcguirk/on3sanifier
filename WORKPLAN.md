@@ -9,14 +9,13 @@ This document tracks the development tasks for the project.
   - "Hiding YY posts"
   - "Displaying XX hidden threads"
   - "Hiding YY threads"
-- Add links for Firefox (https://addons.mozilla.org/en-US/firefox/addon/on3-sanifier/) and Chrome Web Store (https://chromewebstore.google.com/detail/on3-sanifier/nchaljlnpleoklkakenpbeinpdhkocpj) to the popup.html file. It should list one below the other. Remove any "link coming later" messaging.
 - [x] Disable "Show hidden" button when nothing is hidden.
   - Tooltip should say "No posts are hidden" on post pages.
   - Tooltip should say "No threads are hidden" on thread list pages.
 - [x] Add a keyboard shortcut (Alt+Up arrow) to show/hide hidden posts.
 - Implement "Super Ignore" feature.
-  - Add a "Super Ignore" button with the extension logo to user hovercards.
-  - Update the options page to explain what "Super Ignore" is and how it differs from the forum's built-in ignore.
+  - [x] Add a "Super Ignore" button with the extension logo to user hovercards.
+  - [x] Update the options page to explain what "Super Ignore" is and how it differs from the forum's built-in ignore.
   - When a user is "Super Ignored":
     - Replace their avatar with a clown emoji.
     - Change their username to "Clown: <original name>".
@@ -33,5 +32,6 @@ This document tracks the development tasks for the project.
 
 ## Completed
 
+- [x] Add links for Firefox (https://addons.mozilla.org/en-US/firefox/addon/on3-sanifier/) and Chrome Web Store (https://chromewebstore.google.com/detail/on3-sanifier/nchaljlnpleoklkakenpbeinpdhkocpj) to the popup.html file. It should list one below the other. Remove any "link coming later" messaging.
 - [x] Add separation between the "Show hidden" and "Open all unread in new tabs" buttons.
 - [x] Create a `WORKPLAN.md` file.
