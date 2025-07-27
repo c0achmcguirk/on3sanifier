@@ -235,7 +235,7 @@ describe('openUnreadThreadsInTabs', () => {
     document.body.innerHTML = '';
   });
 
-  it('should open unread, non-hidden threads in new tabs', () => {
+  it('should open unread, non-hidden threads in new tabs.', () => {
     spyOn(chrome.runtime, 'sendMessage');
     document.body.innerHTML = `
       <div class="structItem--thread is-unread">

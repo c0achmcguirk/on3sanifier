@@ -174,6 +174,6 @@ function runSanifier(): void {
 // Run the filter when the page loads.
 runSanifier();
 
-// We can use a MutationObserver for this.
+// Uses a MutationObserver to re-run the sanifier when the DOM changes.
 const observer = new MutationObserver(runSanifier);
 observer.observe(document.body, {childList: true, subtree: true});

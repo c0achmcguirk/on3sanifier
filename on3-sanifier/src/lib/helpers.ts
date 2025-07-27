@@ -1438,11 +1438,10 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
   }
 
   /**
-   * Migrates the database to a new version, fixes saved values that are
-   * outdated.
+   * Migrates the database to a new version, fixing saved values that are outdated.
    * @param currentVersion The current, outdated version number.
    * @param targetVersion The version we need to migrate to.
-   * @returns
+   * @returns A promise with an empty signature.
    */
   migrateDatabase(
     currentVersion: number,
