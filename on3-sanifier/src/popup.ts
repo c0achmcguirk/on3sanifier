@@ -7,6 +7,19 @@ document.addEventListener('DOMContentLoaded', () => {
   new MDCRipple(optionsButton);
   new MDCRipple(newPostsButton);
 
+  const chromeLink = document.getElementById('chrome-link') as HTMLAnchorElement;
+  const firefoxLink = document.getElementById('firefox-link') as HTMLAnchorElement;
+
+  chromeLink.addEventListener('click', () => {
+    void chrome.tabs.create({url: chromeLink.href});
+    window.close(); // Close the popup
+  });
+
+  firefoxLink.addEventListener('click', () => {
+    void chrome.tabs.create({url: firefoxLink.href});
+    window.close(); // Close the popup
+  });
+
   optionsButton.addEventListener('click', () => {
     chrome.runtime.openOptionsPage();
   });
