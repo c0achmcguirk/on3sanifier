@@ -1550,10 +1550,18 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
       return;
     }
 
-    // Replace avatar with a clown emoji
-    const avatar = post.querySelector<HTMLElement>('.message-avatar-wrapper');
-    if (avatar) {
-      avatar.innerHTML = '<span class="clown-emoji">🤡</span>';
+    // Replace avatar with a clown emoji.
+    const avatarWrapper = post.querySelector<HTMLElement>(
+      '.message-avatar-wrapper',
+    );
+    if (avatarWrapper) {
+      // Remove the existing avatar link and image.
+      const avatarLink = avatarWrapper.querySelector('a');
+      if (avatarLink) {
+        avatarLink.remove();
+      }
+      // Add the clown emoji.
+      avatarWrapper.innerHTML = '<span class="clown-emoji">🤡</span>';
     }
 
     // Change username
