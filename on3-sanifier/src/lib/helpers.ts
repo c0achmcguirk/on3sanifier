@@ -63,13 +63,15 @@ export function filterPosts(
     debugMode?: boolean;
   },
   document: Document,
-): void {
+): number {
   debugMode = settings.debugMode || false;
   const {
     blockedUsers = [],
     alwaysShowUsers = [],
     ratingThreshold = 0,
   } = settings;
+
+  let hiddenCount = 0;
 
   document.querySelectorAll<HTMLElement>('article.message').forEach(post => {
     const author = post.dataset.author?.toLowerCase();
@@ -96,11 +98,14 @@ export function filterPosts(
     if (hideReason) {
       log(`Hiding post by ${author} because ${hideReason}`);
       post.classList.add('on3-sanifier-hidden-post');
+      hiddenCount++;
     } else {
       log(`Showing post by ${author}.`);
       post.classList.remove('on3-sanifier-hidden-post');
     }
   });
+
+  return hiddenCount;
 }
 
 export function filterThreads(
@@ -109,8 +114,10 @@ export function filterThreads(
     ignoreThreadsContaining?: string[];
   },
   document: Document,
-): void {
+): number {
   const {ignoredThreads = [], ignoreThreadsContaining = []} = settings;
+
+  let hiddenCount = 0;
 
   document
     .querySelectorAll<HTMLElement>('.structItem--thread')
@@ -118,6 +125,7 @@ export function filterThreads(
       const threadId = thread.className.match(/js-threadListItem-(\d+)/)?.[1];
       if (threadId && settings.ignoredThreads?.some(t => t.id === threadId)) {
         thread.classList.add('on3-sanifier-hidden-thread');
+        hiddenCount++;
         return;
       }
 
@@ -140,11 +148,14 @@ export function filterThreads(
 
         if (shouldHide) {
           thread.classList.add('on3-sanifier-hidden-thread');
+          hiddenCount++;
         } else {
           thread.classList.remove('on3-sanifier-hidden-thread');
         }
       }
     });
+
+  return hiddenCount;
 }
 
 export class On3Helpers {

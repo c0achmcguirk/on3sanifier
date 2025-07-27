@@ -4,7 +4,7 @@ This document tracks the development tasks for the project.
 
 ## To Do
 
-- Add snackbar notifications for showing/hiding content.
+- [x] Add snackbar notifications for showing/hiding content.
   - "Displaying XX hidden posts"
   - "Hiding YY posts"
   - "Displaying XX hidden threads"

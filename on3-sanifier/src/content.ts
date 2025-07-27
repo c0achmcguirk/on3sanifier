@@ -35,6 +35,9 @@ function createToolbar(): HTMLElement {
     const isShowingAll = document.body.classList.contains('on3san-show-all');
     const newText = isShowingAll ? 'Sanify' : 'Show hidden';
     showHiddenButton.querySelector('.mdc-button__label')!.textContent = newText;
+
+    // Re-run the sanifier to update counts and show snackbar.
+    runSanifier();
   });
 
   newDiv.appendChild(showHiddenButton);
@@ -127,6 +130,13 @@ function createToolbar(): HTMLElement {
 }
 
 function injectCustomDivs(): void {
+  // Inject the CSS for the snackbar.
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  link.href = chrome.runtime.getURL('popup.css');
+  document.head.appendChild(link);
+
   // If a toolbar already exists, don't inject another one.
   if (document.querySelector('.on3san-toolbar')) {
     return;
@@ -138,6 +148,22 @@ function injectCustomDivs(): void {
     const bottomToolbar = createToolbar();
     targetContainer.prepend(topToolbar);
     targetContainer.append(bottomToolbar);
+  }
+
+  // Add the snackbar element to the body.
+  const snackbar = document.createElement('div');
+  snackbar.id = 'toast';
+  document.body.appendChild(snackbar);
+}
+
+function showSnackbar(message: string): void {
+  const toast = document.getElementById('toast');
+  if (toast) {
+    toast.textContent = message;
+    toast.className = 'show';
+    setTimeout(() => {
+      toast.className = toast.className.replace('show', '');
+    }, 3000);
   }
 }
 
@@ -159,8 +185,27 @@ function filterContent(): void {
         return;
       }
 
-      filterPosts(settings, document);
-      filterThreads(settings, document);
+      const hiddenPostsCount = filterPosts(settings, document);
+      const hiddenThreadsCount = filterThreads(settings, document);
+
+      const helpers = new On3Helpers();
+      const mode = helpers.detectMode(window.location.href);
+      const isShowingAll = document.body.classList.contains('on3san-show-all');
+
+      let message = '';
+      if (mode === 'inthread') {
+        message = isShowingAll
+          ? `Displaying ${hiddenPostsCount} hidden posts.`
+          : `Hiding ${hiddenPostsCount} posts.`;
+      } else if (mode === 'inforum' || mode === 'inlist') {
+        message = isShowingAll
+          ? `Displaying ${hiddenThreadsCount} hidden threads.`
+          : `Hiding ${hiddenThreadsCount} threads.`;
+      }
+
+      if (message) {
+        showSnackbar(message);
+      }
     },
   );
 }
@@ -171,9 +216,27 @@ function runSanifier(): void {
   colorCodePostsByReactions();
 }
 
+// Debounce function to limit how often a function is called.
+function debounce<T extends (...args: any[]) => void>(func: T, delay: number): (...args: Parameters<T>) => void {
+  let timeout: ReturnType<typeof setTimeout>;
+  return function(this: ThisParameterType<T>, ...args: Parameters<T>) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), delay);
+  };
+}
+
 // Run the filter when the page loads.
 runSanifier();
 
 // Uses a MutationObserver to re-run the sanifier when the DOM changes.
-const observer = new MutationObserver(runSanifier);
-observer.observe(document.body, {childList: true, subtree: true});
+// Debounce the runSanifier function to avoid excessive calls.
+const debouncedRunSanifier = debounce(runSanifier, 500); // 500ms debounce
+
+const targetNode = document.querySelector('.p-body-content');
+if (targetNode) {
+  const observer = new MutationObserver(debouncedRunSanifier);
+  observer.observe(targetNode, {childList: true, subtree: true});
+} else {
+  console.warn('on3 Sanifier: Could not find .p-body-content to observe.');
+}
