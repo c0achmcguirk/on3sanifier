@@ -10,12 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const chromeLink = document.getElementById('chrome-link') as HTMLAnchorElement;
   const firefoxLink = document.getElementById('firefox-link') as HTMLAnchorElement;
 
-  chromeLink.addEventListener('click', () => {
+  chromeLink.addEventListener('click', (event) => {
+    event.preventDefault(); // Prevent default link behavior
     void chrome.tabs.create({url: chromeLink.href});
     window.close(); // Close the popup
   });
 
-  firefoxLink.addEventListener('click', () => {
+  firefoxLink.addEventListener('click', (event) => {
+    event.preventDefault(); // Prevent default link behavior
     void chrome.tabs.create({url: firefoxLink.href});
     window.close(); // Close the popup
   });
