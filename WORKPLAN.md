@@ -13,7 +13,7 @@ This document tracks the development tasks for the project.
 - [x] Disable "Show hidden" button when nothing is hidden.
   - Tooltip should say "No posts are hidden" on post pages.
   - Tooltip should say "No threads are hidden" on thread list pages.
-- Add a keyboard shortcut (Alt+Up arrow) to show/hide hidden posts.
+- [x] Add a keyboard shortcut (Alt+Up arrow) to show/hide hidden posts.
 - Implement "Super Ignore" feature.
   - Add a "Super Ignore" button with the extension logo to user hovercards.
   - Update the options page to explain what "Super Ignore" is and how it differs from the forum's built-in ignore.
