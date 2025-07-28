@@ -403,15 +403,11 @@ if (targetNode) {
       void colorCodePostsByReactions(); // Re-run to color code new posts
     }
 
-    if (newHovercardsAdded) {
-      // Re-check all hovercards, as new ones might have appeared
-      const hovercards = document.querySelectorAll('.tooltip--member');
-      hovercards.forEach(hovercard => {
-        if (!hovercard.querySelector('.on3san-super-ignore-button')) {
-          injectSuperIgnoreButton(hovercard as HTMLElement);
-        }
-      });
-    }
+    // Always re-check all hovercards, as new ones might have appeared or data might have loaded.
+    const hovercards = document.querySelectorAll('.tooltip--member');
+    hovercards.forEach(hovercard => {
+      injectSuperIgnoreButton(hovercard as HTMLElement);
+    });
   });
   observer.observe(targetNode, {childList: true, subtree: true});
 } else {
