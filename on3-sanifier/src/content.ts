@@ -308,17 +308,16 @@ function runSanifier(showSnackbarOnToggle = false): void {
         helpers,
       );
 
-      // Update the button state after filtering.
-      const showHiddenButton = document.querySelector(
-        '.on3san-toolbar .mdc-button',
-      ) as HTMLButtonElement;
-      if (showHiddenButton) {
-        updateShowHiddenButtonState(
-          showHiddenButton,
-          mode === 'inthread' ? hiddenPostsCount : hiddenThreadsCount,
-          mode,
-        );
-      }
+      // Update the button state after filtering for all toolbars.
+      document
+        .querySelectorAll<HTMLButtonElement>('.on3san-toolbar .mdc-button')
+        .forEach(button => {
+          updateShowHiddenButtonState(
+            button,
+            mode === 'inthread' ? hiddenPostsCount : hiddenThreadsCount,
+            mode,
+          );
+        });
 
       if (showSnackbarOnToggle) {
         const isShowingAll =
