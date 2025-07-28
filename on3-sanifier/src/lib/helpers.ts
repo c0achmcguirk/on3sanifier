@@ -1556,6 +1556,12 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
     if (!authorId || !this.isSuperIgnored(authorId, superIgnoredUsers)) {
       return;
     }
+
+    // If the post has already been super-ignored, do nothing.
+    if (post.classList.contains('on3-sanifier-super-ignored')) {
+      return;
+    }
+
     // Replace avatar with a clown emoji.
     const avatarWrapper = post.querySelector<HTMLElement>(
       '.message-avatar-wrapper',
@@ -1607,6 +1613,9 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
     if (quoteUsername) {
       quoteUsername.textContent = 'A clown said:';
     }
+
+    // Mark the post as super-ignored to prevent re-processing.
+    post.classList.add('on3-sanifier-super-ignored');
   }
 }
 

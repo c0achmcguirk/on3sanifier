@@ -284,7 +284,6 @@ function runSanifier(showSnackbarOnToggle = false): void {
   // Inject custom divs and color code posts immediately.
   // The counts will be updated asynchronously once settings are loaded.
   injectCustomDivs(0, 0, mode); // Pass initial 0 counts, will be updated later
-  void colorCodePostsByReactions();
 
   chrome.storage.sync.get(
     [
@@ -367,6 +366,7 @@ function debounce<T extends (...args: any[]) => void>(
 
 // Run the filter when the page loads.
 runSanifier();
+void colorCodePostsByReactions();
 
 // Uses a MutationObserver to re-run the sanifier when the DOM changes.
 // Debounce the runSanifier function to avoid excessive calls.
@@ -375,17 +375,44 @@ const debouncedRunSanifier = debounce(runSanifier, 500); // 500ms debounce
 const targetNode = document.body;
 if (targetNode) {
   const observer = new MutationObserver(mutations => {
-    debouncedRunSanifier(); // Keep this for general filtering
+    let newPostsAdded = false;
+    let newHovercardsAdded = false;
 
-    // After general filtering, check for hovercards
-    const hovercards = document.querySelectorAll('.tooltip--member');
-    console.log('Found hovercards:', hovercards);
-    hovercards.forEach(hovercard => {
-      // Check if the button already exists to prevent duplicates
-      if (!hovercard.querySelector('.on3san-super-ignore-button')) {
-        injectSuperIgnoreButton(hovercard as HTMLElement);
+    for (const mutation of mutations) {
+      if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+        for (const node of mutation.addedNodes) {
+          if (node instanceof HTMLElement) {
+            if (
+              node.matches('article.message') ||
+              node.querySelector('article.message')
+            ) {
+              newPostsAdded = true;
+            }
+            if (
+              node.matches('.tooltip--member') ||
+              node.querySelector('.tooltip--member')
+            ) {
+              newHovercardsAdded = true;
+            }
+          }
+        }
       }
-    });
+    }
+
+    if (newPostsAdded) {
+      debouncedRunSanifier(); // Re-run sanifier to filter new posts
+      void colorCodePostsByReactions(); // Re-run to color code new posts
+    }
+
+    if (newHovercardsAdded) {
+      // Re-check all hovercards, as new ones might have appeared
+      const hovercards = document.querySelectorAll('.tooltip--member');
+      hovercards.forEach(hovercard => {
+        if (!hovercard.querySelector('.on3san-super-ignore-button')) {
+          injectSuperIgnoreButton(hovercard as HTMLElement);
+        }
+      });
+    }
   });
   observer.observe(targetNode, {childList: true, subtree: true});
 } else {
