@@ -35,10 +35,7 @@ export async function colorCodePostsByReactions(): Promise<void> {
   const helpers = new On3Helpers();
   const superIgnoredUsers = await helpers.getSuperIgnoredUsers();
 
-  console.log('!!! colorCodePostsByReactions()');
-
   document.querySelectorAll<HTMLElement>('article.message').forEach(post => {
-    console.log(post, '!!! post');
     const reactionCount = getReactionCount(post);
     let backgroundColor = '';
     if (reactionCount >= 16) {
@@ -77,7 +74,6 @@ function log(message: string) {
 
 export function filterPosts(
   settings: {
-    blockedUsers?: string[];
     alwaysShowUsers?: string[];
     ratingThreshold?: number;
     debugMode?: boolean;
@@ -88,7 +84,6 @@ export function filterPosts(
 ): number {
   debugMode = settings.debugMode || false;
   const {
-    blockedUsers = [],
     alwaysShowUsers = [],
     ratingThreshold = 0,
     superIgnoredUsers = [],
@@ -100,10 +95,7 @@ export function filterPosts(
     const author = post.dataset.author?.toLowerCase();
     if (!author) return;
 
-    const authorId = post.dataset.authorId;
-    if (authorId && helpers.isSuperIgnored(authorId, superIgnoredUsers)) {
-      helpers.applySuperIgnore(post, superIgnoredUsers);
-    }
+    const currentAuthorId = post.dataset.authorId || post.dataset.userId;
 
     const lowercasedAlwaysShowUsers = alwaysShowUsers.map((u: string) =>
       u.toLowerCase(),
@@ -114,11 +106,9 @@ export function filterPosts(
 
     if (lowercasedAlwaysShowUsers.includes(author)) {
       // This user's posts should always be shown, so we don't set a hideReason.
-    } else if (blockedUsers.includes(author)) {
-      hideReason = `author '${author}' is in the blocked user list.`;
     } else if (
-      authorId &&
-      helpers.isSuperIgnored(authorId, superIgnoredUsers)
+      currentAuthorId &&
+      helpers.isSuperIgnored(currentAuthorId, superIgnoredUsers)
     ) {
       hideReason = `author '${author}' is in the super ignored user list.`;
     } else if (reactionCount < ratingThreshold) {
@@ -126,6 +116,7 @@ export function filterPosts(
     }
 
     if (hideReason) {
+      console.log(`Attempting to hide post by ${author} because ${hideReason}`);
       log(`Hiding post by ${author} because ${hideReason}`);
       post.classList.add('on3-sanifier-hidden-post');
       hiddenCount++;
@@ -324,7 +315,6 @@ export class On3Helpers {
     poster: string,
     upvotes: number,
     downvotes: number,
-    ignoredUsers: string[],
     alwaysShowUsers: string[],
     ignoreThreshold: number,
   ): boolean {
@@ -337,10 +327,6 @@ export class On3Helpers {
 
     // check that the threshold is met
     if (upvotes < _threshold) {
-      return true;
-    }
-
-    if (ignoredUsers.includes(poster.toLowerCase().trim())) {
       return true;
     }
 
@@ -442,11 +428,11 @@ export class On3Helpers {
   hideIgnoredPosts(): Promise<{hiddenCount: number; hiddenPosters: string[]}> {
     return new Promise(resolve => {
       void this.getPreference({
-        ignoredUsers: [],
+        superIgnoredUsers: [],
         alwaysShowUsers: [],
         ratingThreshold: 0,
       }).then(items => {
-        const ignoredUsers = items.ignoredUsers as string[];
+        const superIgnoredUsers = items.superIgnoredUsers as User[];
         const alwaysShowUsers = items.alwaysShowUsers as string[];
         const ignoreThreshold = items.ratingThreshold as number;
         // get all posts:
@@ -462,7 +448,6 @@ export class On3Helpers {
             poster,
             likes,
             dislikes,
-            ignoredUsers,
             alwaysShowUsers,
             ignoreThreshold,
           );
@@ -1556,7 +1541,6 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    * @param superIgnoredUsers The list of super-ignored users.
    */
   applySuperIgnore(post: HTMLElement, superIgnoredUsers: User[]): void {
-    console.log('!!! applySuperIgnore!');
     const authorId = post.dataset.authorId;
     if (!authorId || !this.isSuperIgnored(authorId, superIgnoredUsers)) {
       return;

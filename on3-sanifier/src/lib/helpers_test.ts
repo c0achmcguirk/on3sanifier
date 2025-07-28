@@ -130,13 +130,16 @@ describe('filterPosts', () => {
     document.body.innerHTML = '';
   });
 
-  it('should hide a post by a blocked user', () => {
+  it('should hide a post by a super ignored user', () => {
     const post = document.createElement('article');
     post.className = 'message';
-    post.dataset.author = 'blockedUser';
+    post.dataset.author = 'superignoreduser';
+    post.dataset.userId = 'superignoreduserid';
     document.body.appendChild(post);
 
-    const settings = {blockedUsers: ['blockeduser']};
+    const settings = {
+      superIgnoredUsers: [{id: 'superignoreduserid', name: 'superignoreduser'}],
+    };
     const helpers = new On3Helpers();
     filterPosts(settings, document, helpers);
 
@@ -147,10 +150,11 @@ describe('filterPosts', () => {
     const post = document.createElement('article');
     post.className = 'message';
     post.dataset.author = 'alwaysShowUser';
+    post.dataset.userId = 'alwaysshowuserid';
     document.body.appendChild(post);
 
     const settings = {
-      blockedUsers: ['alwaysshowuser'],
+      superIgnoredUsers: [{id: 'alwaysshowuserid', name: 'alwaysShowUser'}],
       alwaysShowUsers: ['alwaysshowuser'],
     };
     const helpers = new On3Helpers();
