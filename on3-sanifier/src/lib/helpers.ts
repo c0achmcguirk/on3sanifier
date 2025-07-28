@@ -116,6 +116,11 @@ export function filterPosts(
       // This user's posts should always be shown, so we don't set a hideReason.
     } else if (blockedUsers.includes(author)) {
       hideReason = `author '${author}' is in the blocked user list.`;
+    } else if (
+      authorId &&
+      helpers.isSuperIgnored(authorId, superIgnoredUsers)
+    ) {
+      hideReason = `author '${author}' is in the super ignored user list.`;
     } else if (reactionCount < ratingThreshold) {
       hideReason = `it has ${reactionCount} reaction(s) and the rating threshold is ${ratingThreshold}.`;
     }
