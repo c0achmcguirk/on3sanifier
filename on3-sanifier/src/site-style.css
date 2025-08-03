@@ -28,6 +28,22 @@ body.on3san-show-all .on3-sanifier-super-ignored-post {
   display: none !important;
 }
 
+body.on3san-show-super-ignored .on3-sanifier-super-ignored-post {
+  display: block !important;
+}
+
+.on3san-idiot-box-container {
+  display: none;
+}
+
+.on3san-idiot-box-container--visible {
+  display: block;
+}
+
+.on3san-idiot-box {
+  width: 400px;
+}
+
 .on3san-toolbar {
   background-color: #fe3b1f;
   color: #efefef;

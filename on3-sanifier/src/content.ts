@@ -38,14 +38,22 @@ function createToolbar(
   // Set initial state and tooltip for the showHiddenButton.
   updateShowHiddenButtonState(showHiddenButton, hiddenCount, mode);
 
-  showHiddenButton.addEventListener('click', () => {
+  showHiddenButton.addEventListener('click', async () => {
+    console.log('!!! on3san shbclick: button clicked');
     document.body.classList.toggle('on3san-show-all');
     const isShowingAll = document.body.classList.contains('on3san-show-all');
+    console.log('!!! on3san shbclick: isShowingAll is now', isShowingAll);
     const newText = isShowingAll ? 'Sanify' : 'Show hidden';
+    console.log('!!! on3san shbclick: new button text will be', newText);
     showHiddenButton.querySelector('.mdc-button__label')!.textContent = newText;
 
     // Re-run the sanifier to update counts and show snackbar.
-    void runSanifier(true); // Pass true to show snackbar
+    console.log('!!! on3san shbclick: about to run sanifier');
+    await runSanifier(true); // Pass true to show snackbar
+    console.log('!!! on3san shbclick: sanifier finished');
+    console.log('!!! on3san shbclick: about to update idiot box visibility');
+    updateIdiotBoxVisibility();
+    console.log('!!! on3san shbclick: idiot box visibility updated');
   });
 
   newDiv.appendChild(showHiddenButton);
@@ -132,7 +140,70 @@ function createToolbar(
     newDiv.appendChild(ignoreThreadButton);
   }
 
+  const idiotBoxContainer = document.createElement('div');
+  idiotBoxContainer.className = 'on3san-idiot-box-container';
+
+  const idiotBox = document.createElement('input');
+  idiotBox.type = 'text';
+  idiotBox.className = 'on3san-idiot-box mdc-text-field__input';
+  idiotBox.placeholder = `Type 'i am an idiot' to see super-ignored users' posts`;
+  idiotBoxContainer.appendChild(idiotBox);
+  newDiv.appendChild(idiotBoxContainer);
+
+  idiotBox.addEventListener('input', event => {
+    const currentInput = event.target as HTMLInputElement;
+    const value = currentInput.value.toLowerCase().replace(/\s/g, '');
+
+    // Sync the value across all idiot boxes.
+    document
+      .querySelectorAll<HTMLInputElement>('.on3san-idiot-box')
+      .forEach(box => {
+        if (box !== currentInput) {
+          box.value = currentInput.value;
+        }
+      });
+
+    if (value === 'iamanidiot') {
+      document.body.classList.add('on3san-show-super-ignored');
+    }
+  });
+
+  idiotBox.addEventListener('keyup', event => {
+    if (event.key === 'Enter') {
+      const value = idiotBox.value.toLowerCase().replace(/\s/g, '');
+      if (value !== 'iamanidiot') {
+        showSnackbar('Nope, try again.');
+      }
+    }
+  });
+
   return newDiv;
+}
+
+function updateIdiotBoxVisibility() {
+  console.log('!!! updateIBViz: function called');
+  const idiotBoxes = document.querySelectorAll<HTMLElement>(
+    '.on3san-idiot-box-container',
+  );
+  console.log('!!! updateIBViz: idiotBoxes found:', idiotBoxes);
+  if (idiotBoxes.length > 0) {
+    const isShowingAll = document.body.classList.contains('on3san-show-all');
+    console.log('!!! updateIBViz: isShowingAll:', isShowingAll);
+    const superIgnoredPost = document.querySelector(
+      '.on3-sanifier-super-ignored-post',
+    );
+    console.log('!!! updateIBViz: superIgnoredPost found:', superIgnoredPost);
+    idiotBoxes.forEach(box => {
+      console.log('!!! updateIBViz: processing box:', box);
+      if (isShowingAll && superIgnoredPost) {
+        console.log('!!! updateIBViz: conditions met, making box visible.');
+        box.classList.add('on3san-idiot-box-container--visible');
+      } else {
+        console.log('!!! updateIBViz: conditions not met, hiding box.');
+        box.classList.remove('on3san-idiot-box-container--visible');
+      }
+    });
+  }
 }
 
 function updateShowHiddenButtonState(

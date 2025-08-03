@@ -3,6 +3,14 @@
 This document tracks the development tasks for the project.
 
 ## To Do
+- BIG: Gate ignored users behind an additional check.
+  - When "show hidden" is active, continue to hide posts from ignored users.
+  - Add a "Show posts from ignored users" button to the toolbar.
+  - Clicking the button reveals a text input.
+  - The user must type "i am an idiot" to reveal the posts.
+  - Show an error snackbar if the input is incorrect.
+
+## Completed
 
 - [x] Implement "Super Ignore" feature.
   - [x] Add a "Super Ignore" button with the extension logo to user hovercards.
@@ -14,15 +22,6 @@ This document tracks the development tasks for the project.
     - [x] Append their posts with: "Finally, ignore most of what I wrote above, because I am an absolute clown.".
     - [x] Hide their name from reaction/like counts.
     - [x] Change their name in quotes to "A clown said:".
-- BIG: Gate ignored users behind an additional check.
-  - When "show hidden" is active, continue to hide posts from ignored users.
-  - Add a "Show posts from ignored users" button to the toolbar.
-  - Clicking the button reveals a text input.
-  - The user must type "i am an idiot" to reveal the posts.
-  - Show an error snackbar if the input is incorrect.
-
-## Completed
-
 - [x] Add snackbar notifications for showing/hiding content.
   - "Displaying XX hidden posts"
   - "Hiding YY posts"
