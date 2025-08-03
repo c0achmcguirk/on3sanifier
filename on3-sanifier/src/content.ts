@@ -30,7 +30,7 @@ function createToolbar(
   newDiv.appendChild(logo);
 
   const showHiddenButton = document.createElement('button');
-  showHiddenButton.className = 'mdc-button mdc-button--raised';
+  showHiddenButton.className = 'mdc-button mdc-button--raised show-hidden-button';
   showHiddenButton.innerHTML =
     '<span class="mdc-button__label">Show hidden</span>';
   new MDCRipple(showHiddenButton);
@@ -301,7 +301,9 @@ async function runSanifier(showSnackbarOnToggle = false): Promise<void> {
 
   // Update the button state after filtering for all toolbars.
   document
-    .querySelectorAll<HTMLButtonElement>('.on3san-toolbar .mdc-button')
+    .querySelectorAll<HTMLButtonElement>(
+      '.on3san-toolbar .show-hidden-button',
+    )
     .forEach(button => {
       updateShowHiddenButtonState(
         button,
@@ -327,6 +329,7 @@ async function runSanifier(showSnackbarOnToggle = false): Promise<void> {
       showSnackbar(message);
     }
   }
+}
 
 chrome.runtime.onMessage.addListener(request => {
   if (request.action === 'toggleHidden') {
