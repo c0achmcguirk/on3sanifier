@@ -105,7 +105,7 @@ export async function filterPosts(
     const reactionCount = getReactionCount(post);
 
     let hideReason = '';
-    console.log('filterPosts: Initial hideReason:', hideReason);
+    let isSuperIgnored = false;
 
     // First, check if the user is super-ignored. This should generally take precedence.
     if (
@@ -113,12 +113,11 @@ export async function filterPosts(
       helpers.isSuperIgnored(currentAuthorId, superIgnoredUsers)
     ) {
       hideReason = `author '${author}' is in the super ignored user list.`;
-      console.log('filterPosts: hideReason after super-ignore check:', hideReason);
+      isSuperIgnored = true;
     }
     // If not super-ignored, then check if it's below the rating threshold.
     else if (reactionCount < ratingThreshold) {
       hideReason = `it has ${reactionCount} reaction(s) and the rating threshold is ${ratingThreshold}.`;
-      console.log('filterPosts: hideReason after rating threshold check:', hideReason);
     }
 
     // Finally, if a hideReason was determined, check if the user is in alwaysShowUsers.
@@ -126,18 +125,18 @@ export async function filterPosts(
     if (hideReason && lowercasedAlwaysShowUsers.includes(author)) {
       hideReason = ''; // Override hiding if in alwaysShowUsers
     }
-    console.log('filterPosts: final hideReason:', hideReason);
 
     if (hideReason) {
-      console.log('Adding hidden class:', {hideReason, post});
-      console.log(`Attempting to hide post by ${author} because ${hideReason}`);
       log(`Hiding post by ${author} because ${hideReason}`);
       post.classList.add('on3-sanifier-hidden-post');
-      console.log('filterPosts: post.classList after adding class:', post.classList);
+      if (isSuperIgnored) {
+        post.classList.add('on3-sanifier-super-ignored-post');
+      }
       hiddenCount++;
     } else {
       log(`Showing post by ${author}.`);
       post.classList.remove('on3-sanifier-hidden-post');
+      post.classList.remove('on3-sanifier-super-ignored-post');
     }
   });
 
