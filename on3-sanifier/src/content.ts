@@ -261,13 +261,13 @@ function showSnackbar(message: string): void {
 }
 
 // Function to filter posts and threads based on user settings.
-function filterContentAndGetCounts(
+async function filterContentAndGetCounts(
   settings: any,
   document: Document,
   mode: string | undefined,
   helpers: On3Helpers,
-): {hiddenPostsCount: number; hiddenThreadsCount: number} {
-  const hiddenPostsCount = filterPosts(settings, document, helpers);
+): Promise<{hiddenPostsCount: number; hiddenThreadsCount: number}> {
+  const hiddenPostsCount = await filterPosts(settings, document, helpers);
   const hiddenThreadsCount = filterThreads(settings, document);
   return {hiddenPostsCount, hiddenThreadsCount};
 }
