@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "on3 Sanifier",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Filters posts and threads on on3.com.",
   "icons": {
     "16": "o3s_logo_16.png",
