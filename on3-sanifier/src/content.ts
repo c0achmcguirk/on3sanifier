@@ -45,7 +45,7 @@ function createToolbar(
     showHiddenButton.querySelector('.mdc-button__label')!.textContent = newText;
 
     // Re-run the sanifier to update counts and show snackbar.
-    runSanifier(true); // Pass true to show snackbar
+    void runSanifier(true); // Pass true to show snackbar
   });
 
   newDiv.appendChild(showHiddenButton);
@@ -60,7 +60,7 @@ function createToolbar(
     new MDCRipple(openUnreadButton);
 
     openUnreadButton.addEventListener('click', () => {
-      helpers.openUnreadThreadsInTabs();
+      void helpers.openUnreadThreadsInTabs();
     });
 
     newDiv.appendChild(openUnreadButton);
@@ -75,7 +75,7 @@ function createToolbar(
     const threadId = helpers.getThreadIdFromUrl(window.location.href);
     const threadTitle = helpers.getThreadTitleFromUrl(window.location.href);
 
-    const setButtonState = (isIgnored: boolean) => {
+    const setButtonState = async (isIgnored: boolean) => {
       document
         .querySelectorAll<HTMLButtonElement>('.ignore-thread-button')
         .forEach(button => {
@@ -94,7 +94,7 @@ function createToolbar(
     };
 
     if (threadId) {
-      void chrome.storage.sync.get('ignoredThreads', result => {
+      void helpers.getPreference({ignoredThreads: []}).then(result => {
         const ignoredThreads = (result.ignoredThreads || []) as {
           id: string;
           title: string;
@@ -103,30 +103,29 @@ function createToolbar(
       });
     }
 
-    ignoreThreadButton.addEventListener('click', () => {
+    ignoreThreadButton.addEventListener('click', async () => {
       if (threadId && threadTitle) {
-        void chrome.storage.sync.get('ignoredThreads', result => {
-          const ignoredThreads = (result.ignoredThreads || []) as {
-            id: string;
-            title: string;
-          }[];
-          const isIgnored = ignoredThreads.some(t => t.id === threadId);
+        const result = await helpers.getPreference({ignoredThreads: []});
+        const ignoredThreads = (result.ignoredThreads || []) as {
+          id: string;
+          title: string;
+        }[];
+        const isIgnored = ignoredThreads.some(t => t.id === threadId);
 
-          if (isIgnored) {
-            const newIgnoredThreads = ignoredThreads.filter(
-              t => t.id !== threadId,
-            );
-            void chrome.storage.sync.set({ignoredThreads: newIgnoredThreads});
-            setButtonState(false);
-          } else {
-            const newIgnoredThreads = [
-              ...ignoredThreads,
-              {id: threadId, title: threadTitle},
-            ];
-            void chrome.storage.sync.set({ignoredThreads: newIgnoredThreads});
-            setButtonState(true);
-          }
-        });
+        if (isIgnored) {
+          const newIgnoredThreads = ignoredThreads.filter(
+            t => t.id !== threadId,
+          );
+          await helpers.setPreference({ignoredThreads: newIgnoredThreads});
+          setButtonState(false);
+        } else {
+          const newIgnoredThreads = [
+            ...ignoredThreads,
+            {id: threadId, title: threadTitle},
+          ];
+          await helpers.setPreference({ignoredThreads: newIgnoredThreads});
+          setButtonState(true);
+        }
       }
     });
 
@@ -227,17 +226,14 @@ function injectSuperIgnoreButton(hovercard: HTMLElement): void {
         '<span class="mdc-button__label">Super Ignore</span>';
       new MDCRipple(superIgnoreButton);
 
-      superIgnoreButton.addEventListener('click', () => {
+      superIgnoreButton.addEventListener('click', async () => {
         const helpers = new On3Helpers();
-        void helpers
-          .toggleSuperIgnoreUser(username, userId)
-          .then(isSuperIgnored => {
-            console.log(
-              `User ${username} (ID: ${userId}) is now Super Ignored: ${isSuperIgnored}`,
-            );
-            // Optionally update button state or show a snackbar here
-            runSanifier(true); // Re-run sanifier to apply changes and show snackbar
-          });
+        const isSuperIgnored = await helpers.toggleSuperIgnoreUser(username, userId);
+        console.log(
+          `User ${username} (ID: ${userId}) is now Super Ignored: ${isSuperIgnored}`,
+        );
+        // Optionally update button state or show a snackbar here
+        void runSanifier(true); // Re-run sanifier to apply changes and show snackbar
       });
 
       buttonGroup.appendChild(superIgnoreButton);
@@ -276,69 +272,61 @@ function filterContentAndGetCounts(
   return {hiddenPostsCount, hiddenThreadsCount};
 }
 
-function runSanifier(showSnackbarOnToggle = false): void {
+async function runSanifier(showSnackbarOnToggle = false): Promise<void> {
   if (!chrome.runtime?.id) return;
   const helpers = new On3Helpers();
   const mode = helpers.detectMode(window.location.href);
 
-  // Inject custom divs and color code posts immediately.
-  // The counts will be updated asynchronously once settings are loaded.
+  // Inject custom divs immediately.
   injectCustomDivs(0, 0, mode); // Pass initial 0 counts, will be updated later
 
-  chrome.storage.sync.get(
-    [
-      'blockedUsers',
-      'alwaysShowUsers',
-      'ignoredThreads',
-      'ignoreThreadsContaining',
-      'ratingThreshold',
-      'debugMode',
-      'superIgnoredUsers',
-    ],
-    settings => {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError);
-        return;
-      }
+  // Await colorCodePostsByReactions to ensure authorId is set before filtering.
+  await colorCodePostsByReactions();
 
-      const {hiddenPostsCount, hiddenThreadsCount} = filterContentAndGetCounts(
-        settings,
-        document,
-        mode,
-        helpers,
-      );
+  const settings = await helpers.getPreference({
+    alwaysShowUsers: [],
+    ignoredThreads: [],
+    ignoreThreadsContaining: [],
+    ratingThreshold: 0,
+    debugMode: false,
+    superIgnoredUsers: [],
+  });
 
-      // Update the button state after filtering for all toolbars.
-      document
-        .querySelectorAll<HTMLButtonElement>('.on3san-toolbar .mdc-button')
-        .forEach(button => {
-          updateShowHiddenButtonState(
-            button,
-            mode === 'inthread' ? hiddenPostsCount : hiddenThreadsCount,
-            mode,
-          );
-        });
-
-      if (showSnackbarOnToggle) {
-        const isShowingAll =
-          document.body.classList.contains('on3san-show-all');
-        let message = '';
-        if (mode === 'inthread') {
-          message = isShowingAll
-            ? `Displaying ${hiddenPostsCount} hidden posts.`
-            : `Hiding ${hiddenPostsCount} posts.`;
-        } else if (mode === 'inforum' || mode === 'inlist') {
-          message = isShowingAll
-            ? `Displaying ${hiddenThreadsCount} hidden threads.`
-            : `Hiding ${hiddenThreadsCount} threads.`;
-        }
-        if (message) {
-          showSnackbar(message);
-        }
-      }
-    },
+  const {hiddenPostsCount, hiddenThreadsCount} = await filterContentAndGetCounts(
+    settings,
+    document,
+    mode,
+    helpers,
   );
-}
+
+  // Update the button state after filtering for all toolbars.
+  document
+    .querySelectorAll<HTMLButtonElement>('.on3san-toolbar .mdc-button')
+    .forEach(button => {
+      updateShowHiddenButtonState(
+        button,
+        mode === 'inthread' ? hiddenPostsCount : hiddenThreadsCount,
+        mode,
+      );
+    });
+
+  if (showSnackbarOnToggle) {
+    const isShowingAll =
+      document.body.classList.contains('on3san-show-all');
+    let message = '';
+    if (mode === 'inthread') {
+      message = isShowingAll
+        ? `Displaying ${hiddenPostsCount} hidden posts.`
+        : `Hiding ${hiddenPostsCount} posts.`;
+    } else if (mode === 'inforum' || mode === 'inlist') {
+      message = isShowingAll
+        ? `Displaying ${hiddenThreadsCount} hidden threads.`
+        : `Hiding ${hiddenThreadsCount} threads.`;
+    }
+    if (message) {
+      showSnackbar(message);
+    }
+  }
 
 chrome.runtime.onMessage.addListener(request => {
   if (request.action === 'toggleHidden') {
@@ -364,18 +352,16 @@ function debounce<T extends (...args: any[]) => void>(
 }
 
 // Run the filter when the page loads.
-runSanifier();
-void colorCodePostsByReactions();
+void runSanifier();
 
 // Uses a MutationObserver to re-run the sanifier when the DOM changes.
 // Debounce the runSanifier function to avoid excessive calls.
-const debouncedRunSanifier = debounce(runSanifier, 500); // 500ms debounce
+const debouncedRunSanifier = debounce(() => void runSanifier(), 500); // 500ms debounce
 
 const targetNode = document.body;
 if (targetNode) {
   const observer = new MutationObserver(mutations => {
     let newPostsAdded = false;
-    let newHovercardsAdded = false;
 
     for (const mutation of mutations) {
       if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
@@ -387,20 +373,13 @@ if (targetNode) {
             ) {
               newPostsAdded = true;
             }
-            if (
-              node.matches('.tooltip--member') ||
-              node.querySelector('.tooltip--member')
-            ) {
-              newHovercardsAdded = true;
-            }
           }
         }
       }
     }
 
     if (newPostsAdded) {
-      debouncedRunSanifier(); // Re-run sanifier to filter new posts
-      void colorCodePostsByReactions(); // Re-run to color code new posts
+      void debouncedRunSanifier(); // Re-run sanifier to filter new posts
     }
 
     // Always re-check all hovercards, as new ones might have appeared or data might have loaded.

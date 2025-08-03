@@ -72,22 +72,24 @@ function log(message: string) {
   }
 }
 
-export function filterPosts(
+export async function filterPosts(
   settings: {
     alwaysShowUsers?: string[];
     ratingThreshold?: number;
     debugMode?: boolean;
-    superIgnoredUsers?: User[];
   },
   document: Document,
   helpers: On3Helpers,
-): number {
+): Promise<number> {
   debugMode = settings.debugMode || false;
   const {
     alwaysShowUsers = [],
     ratingThreshold = 0,
-    superIgnoredUsers = [],
   } = settings;
+
+  const superIgnoredUsers = await helpers.getSuperIgnoredUsers();
+
+  console.log('filterPosts: Received superIgnoredUsers:', superIgnoredUsers);
 
   let hiddenCount = 0;
 
@@ -103,22 +105,35 @@ export function filterPosts(
     const reactionCount = getReactionCount(post);
 
     let hideReason = '';
+    console.log('filterPosts: Initial hideReason:', hideReason);
 
-    if (lowercasedAlwaysShowUsers.includes(author)) {
-      // This user's posts should always be shown, so we don't set a hideReason.
-    } else if (
+    // First, check if the user is super-ignored. This should generally take precedence.
+    if (
       currentAuthorId &&
       helpers.isSuperIgnored(currentAuthorId, superIgnoredUsers)
     ) {
       hideReason = `author '${author}' is in the super ignored user list.`;
-    } else if (reactionCount < ratingThreshold) {
+      console.log('filterPosts: hideReason after super-ignore check:', hideReason);
+    }
+    // If not super-ignored, then check if it's below the rating threshold.
+    else if (reactionCount < ratingThreshold) {
       hideReason = `it has ${reactionCount} reaction(s) and the rating threshold is ${ratingThreshold}.`;
+      console.log('filterPosts: hideReason after rating threshold check:', hideReason);
     }
 
+    // Finally, if a hideReason was determined, check if the user is in alwaysShowUsers.
+    // If they are, clear the hideReason, as their posts should always be shown.
+    if (hideReason && lowercasedAlwaysShowUsers.includes(author)) {
+      hideReason = ''; // Override hiding if in alwaysShowUsers
+    }
+    console.log('filterPosts: final hideReason:', hideReason);
+
     if (hideReason) {
+      console.log('Adding hidden class:', {hideReason, post});
       console.log(`Attempting to hide post by ${author} because ${hideReason}`);
       log(`Hiding post by ${author} because ${hideReason}`);
       post.classList.add('on3-sanifier-hidden-post');
+      console.log('filterPosts: post.classList after adding class:', post.classList);
       hiddenCount++;
     } else {
       log(`Showing post by ${author}.`);
@@ -1532,6 +1547,7 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    * @returns True if the user is super-ignored, false otherwise.
    */
   isSuperIgnored(userId: string, superIgnoredUsers: User[]): boolean {
+    console.log('isSuperIgnored called with:', {userId, superIgnoredUsers});
     return superIgnoredUsers.some(user => user.id === userId);
   }
 

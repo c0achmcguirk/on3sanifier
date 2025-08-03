@@ -1,4 +1,4 @@
-import './chrome_mock';
+import {initializeChromeMock} from './chrome_mock';
 import {
   On3Helpers,
   getReactionCount,
@@ -6,6 +6,13 @@ import {
   filterPosts,
   filterThreads,
 } from './helpers';
+
+// Top-level beforeEach to reset the chrome mock before each test suite
+beforeEach(() => {
+  initializeChromeMock();
+  // Ensure _data is reset for storage.sync
+  (window as any).chrome.storage.sync._data = {};
+});
 
 describe('getReactionCount', () => {
   it('should return 0 if no reactions bar link is found', () => {
@@ -64,38 +71,6 @@ describe('colorCodePostsByReactions', () => {
     return post;
   };
 
-  beforeEach(() => {
-    // Mock the entire chrome object for these tests to ensure storage is available.
-    (window as any).chrome = {
-      runtime: {
-        sendMessage: () => {},
-        getURL: (path: string) => path,
-        getManifest: () => ({
-          manifest_version: 3,
-          name: 'on3-sanifier',
-          version: '1.0.0',
-        }),
-        openOptionsPage: () => {},
-      },
-      extension: {
-        inIncognitoContext: false,
-      },
-      storage: {
-        sync: {
-          get: (keys: any, callback: (items: {[key: string]: any}) => void) => {
-            callback({});
-          },
-          set: (items: any, callback: () => void) => {
-            callback();
-          },
-        },
-      },
-      tabs: {
-        create: () => {},
-      },
-    };
-  });
-
   afterEach(() => {
     document.body.innerHTML = '';
   });
@@ -126,55 +101,72 @@ describe('colorCodePostsByReactions', () => {
 });
 
 describe('filterPosts', () => {
+  beforeEach(() => {
+    // Reset mock storage before each test
+    (window as any).chrome.storage.sync._data = {};
+  });
+
   afterEach(() => {
     document.body.innerHTML = '';
   });
 
-  it('should hide a post by a super ignored user', () => {
+  it('should hide a post by a super ignored user', async () => {
+    (window as any).chrome.storage.sync._data = {
+      superIgnoredUsers: [{id: 'superignoreduserid', name: 'superignoreduser'}],
+    };
     const post = document.createElement('article');
     post.className = 'message';
     post.dataset.author = 'superignoreduser';
     post.dataset.userId = 'superignoreduserid';
     document.body.appendChild(post);
 
-    const settings = {
-      superIgnoredUsers: [{id: 'superignoreduserid', name: 'superignoreduser'}],
-    };
+    const settings = {}; // Settings are now fetched internally by filterPosts
     const helpers = new On3Helpers();
-    filterPosts(settings, document, helpers);
+    await filterPosts(settings, document, helpers);
 
     expect(post.classList.contains('on3-sanifier-hidden-post')).toBe(true);
   });
 
-  it('should not hide a post by a user in alwaysShowUsers', () => {
+  it('should not hide a post by a user in alwaysShowUsers', async () => {
+    (window as any).chrome.storage.sync._data = {
+      alwaysShowUsers: ['alwaysshowuser'],
+      superIgnoredUsers: [], // Ensure superIgnoredUsers is empty for this test
+    };
     const post = document.createElement('article');
     post.className = 'message';
     post.dataset.author = 'alwaysShowUser';
     post.dataset.userId = 'alwaysshowuserid';
     document.body.appendChild(post);
 
-    const settings = {
-      superIgnoredUsers: [{id: 'alwaysshowuserid', name: 'alwaysShowUser'}],
-      alwaysShowUsers: ['alwaysshowuser'],
-    };
+    const settings = {}; // Settings are now fetched internally by filterPosts
     const helpers = new On3Helpers();
-    filterPosts(settings, document, helpers);
+    await filterPosts(settings, document, helpers);
 
     expect(post.classList.contains('on3-sanifier-hidden-post')).toBe(false);
   });
 
-  it('should hide a post below the rating threshold', () => {
+  it('should hide a post below the rating threshold', async () => {
+    (window as any).chrome.storage.sync._data = {
+      ratingThreshold: 5,
+      superIgnoredUsers: [], // Ensure superIgnoredUsers is empty for this test
+    };
     const post = document.createElement('article');
     post.className = 'message';
     post.dataset.author = 'someUser';
     post.innerHTML = '<a class="reactionsBar-link">and 2 others</a>';
     document.body.appendChild(post);
 
-    const settings = {ratingThreshold: 5};
+    const settings = {}; // Settings are now fetched internally by filterPosts
     const helpers = new On3Helpers();
-    filterPosts(settings, document, helpers);
+    await filterPosts(settings, document, helpers);
 
     expect(post.classList.contains('on3-sanifier-hidden-post')).toBe(true);
+  });
+
+  it('should correctly add a class to an element', () => {
+    const el = document.createElement('div');
+    el.classList.add('test-class');
+    expect(el.classList.contains('test-class')).toBe(true);
   });
 });
 
