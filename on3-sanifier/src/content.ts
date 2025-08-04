@@ -47,6 +47,10 @@ function createToolbar(
     console.log('!!! on3san shbclick: new button text will be', newText);
     showHiddenButton.querySelector('.mdc-button__label')!.textContent = newText;
 
+    if (!isShowingAll) {
+      resetIdiotBox();
+    }
+
     // Re-run the sanifier to update counts and show snackbar.
     console.log('!!! on3san shbclick: about to run sanifier');
     await runSanifier(true); // Pass true to show snackbar
@@ -180,6 +184,13 @@ function createToolbar(
   return newDiv;
 }
 
+function resetIdiotBox() {
+  document.querySelectorAll<HTMLInputElement>('.on3san-idiot-box').forEach(box => {
+    box.value = '';
+  });
+  document.body.classList.remove('on3san-show-super-ignored');
+}
+
 function updateIdiotBoxVisibility() {
   console.log('!!! updateIBViz: function called');
   const idiotBoxes = document.querySelectorAll<HTMLElement>(
@@ -299,9 +310,9 @@ function injectSuperIgnoreButton(hovercard: HTMLElement): void {
 
       superIgnoreButton.addEventListener('click', async () => {
         const helpers = new On3Helpers();
-        const isSuperIgnored = await helpers.toggleSuperIgnoreUser(username, userId);
+        const isSuperIgnored = await helpers.toggleSuperIgnoreUser(username);
         console.log(
-          `User ${username} (ID: ${userId}) is now Super Ignored: ${isSuperIgnored}`,
+          `User ${username} is now Super Ignored: ${isSuperIgnored}`,
         );
         // Optionally update button state or show a snackbar here
         void runSanifier(true); // Re-run sanifier to apply changes and show snackbar

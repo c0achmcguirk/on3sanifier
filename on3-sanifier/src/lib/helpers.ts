@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 const NUM_IGNORED_THREADS_PREFKEYS = 20;
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 export function getReactionCount(post: HTMLElement): number {
   const reactionsBarLink =
@@ -47,20 +47,6 @@ export async function colorCodePostsByReactions(): Promise<void> {
     }
 
     post.style.backgroundColor = backgroundColor;
-
-    const avatar = post.querySelector<HTMLElement>(
-      '.message-avatar-wrapper .avatar',
-    );
-    console.log(avatar, '!!! avatar');
-    if (avatar) {
-      const authorId = avatar.dataset.userId;
-      console.log(avatar, '!!! avatar');
-      if (authorId) {
-        console.log(authorId, '!!! authorId');
-        post.dataset.authorId = authorId;
-        helpers.applySuperIgnore(post, superIgnoredUsers);
-      }
-    }
   });
 }
 
@@ -108,10 +94,7 @@ export async function filterPosts(
     let isSuperIgnored = false;
 
     // First, check if the user is super-ignored. This should generally take precedence.
-    if (
-      currentAuthorId &&
-      helpers.isSuperIgnored(currentAuthorId, superIgnoredUsers)
-    ) {
+    if (author && helpers.isSuperIgnored(author, superIgnoredUsers)) {
       hideReason = `author '${author}' is in the super ignored user list.`;
       isSuperIgnored = true;
     }
@@ -314,38 +297,7 @@ export class On3Helpers {
     return false;
   }
 
-  /**
-   * Determines whether the post should be hidden given the poster, votes, and the
-   * list of ignored users and ignore threshold
-   * @param poster - The poster (author) of the post
-   * @param upvotes - The number of upvotes or likes
-   * @param downvotes - The number of downvotes or dislikes on the post
-   * @param ignoredUsers - Array of ignored users
-   * @param alwaysShowUsers - Array of users we must always show
-   * @param ignoreThreshold - The threshold the post must have for votes in order to be visible.
-   * @returns
-   */
-  shouldHidePost(
-    poster: string,
-    upvotes: number,
-    downvotes: number,
-    alwaysShowUsers: string[],
-    ignoreThreshold: number,
-  ): boolean {
-    const _threshold = ignoreThreshold || -1;
-
-    // if neverIgnore user....
-    if (alwaysShowUsers.includes(poster.toLowerCase().trim())) {
-      return false;
-    }
-
-    // check that the threshold is met
-    if (upvotes < _threshold) {
-      return true;
-    }
-
-    return false;
-  }
+  
 
   openUnreadThreadsInTabs(): void {
     const unreadThreads = document.querySelectorAll<HTMLElement>(
@@ -433,55 +385,7 @@ export class On3Helpers {
     }
   }
 
-  /**
-   * Hides the posts that should be ignored:
-   *   - Because the poster is someone on your ignore list
-   *   - Because the score threshold is invalid
-   * @returns A promise
-   */
-  hideIgnoredPosts(): Promise<{hiddenCount: number; hiddenPosters: string[]}> {
-    return new Promise(resolve => {
-      void this.getPreference({
-        superIgnoredUsers: [],
-        alwaysShowUsers: [],
-        ratingThreshold: 0,
-      }).then(items => {
-        const superIgnoredUsers = items.superIgnoredUsers as User[];
-        const alwaysShowUsers = items.alwaysShowUsers as string[];
-        const ignoreThreshold = items.ratingThreshold as number;
-        // get all posts:
-        const posts = document.querySelectorAll<HTMLElement>('.message--post');
-        let processed = 0;
-        let hiddenCount = 0;
-        const hiddenPosters: string[] = [];
-        posts.forEach(post => {
-          const poster = this.getPoster(post);
-          const likes = this.getLikes(post);
-          const dislikes = 0;
-          const shouldHide = this.shouldHidePost(
-            poster,
-            likes,
-            dislikes,
-            alwaysShowUsers,
-            ignoreThreshold,
-          );
-          if (shouldHide) {
-            //post.visibility = post.style.display = 'none';
-            this.addClass(post, 'on3-hidden');
-            hiddenCount++;
-            this.pushUnique(hiddenPosters, poster);
-          } else {
-            this.removeClass(post, 'on3-hidden');
-          }
-
-          processed++;
-          if (processed === posts.length) {
-            resolve({hiddenCount: hiddenCount, hiddenPosters: hiddenPosters});
-          }
-        });
-      });
-    });
-  }
+  
 
   /**
    * Makes thread links go to a new tab when clicked, or removes the added
@@ -1460,7 +1364,7 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    */
   init(): Promise<void> {
     return new Promise(resolve => {
-      void this.getPreference({dbVersion: 0}).then(items => {
+      void this.getPreference({dbVersion: 0, blockedUsers: []}).then(items => {
         if (items.dbVersion < 1) {
           items.dbVersion = 1;
         }
@@ -1497,7 +1401,41 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
           void this.removePreference(key);
         }
       }
-      resolve();
+      if (targetVersion === 3 && currentVersion < 3) {
+        void this.getPreference({
+          blockedUsers: [],
+          ignoredUsers: [],
+          superIgnoredUsers: [],
+        }).then(items => {
+          const blockedUsers = (items.blockedUsers || []) as string[];
+          const ignoredUsers = (items.ignoredUsers || []) as string[];
+          const oldSuperIgnored = (items.superIgnoredUsers || []) as any[];
+
+          const newSuperIgnored = oldSuperIgnored.map(user => {
+            if (typeof user === 'object' && user.name) {
+              return user.name;
+            }
+            return user;
+          });
+
+          const superIgnoredUsers = [
+            ...new Set([
+              ...blockedUsers,
+              ...ignoredUsers,
+              ...newSuperIgnored,
+            ]),
+          ];
+
+          void this.setPreference({superIgnoredUsers: superIgnoredUsers}).then(
+            () => {
+              void this.removePreference(['blockedUsers', 'ignoredUsers']);
+              resolve();
+            },
+          );
+        });
+      } else {
+        resolve();
+      }
     });
   }
 
@@ -1507,24 +1445,18 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    * @param userId The user ID to toggle.
    * @returns A promise that resolves with the new super ignored status (true if super ignored, false otherwise).
    */
-  async toggleSuperIgnoreUser(
-    username: string,
-    userId: string,
-  ): Promise<boolean> {
+  async toggleSuperIgnoreUser(username: string): Promise<boolean> {
     const superIgnoredUsers = await this.getSuperIgnoredUsers();
-    const isSuperIgnored = this.isSuperIgnored(userId, superIgnoredUsers);
+    const isSuperIgnored = this.isSuperIgnored(username, superIgnoredUsers);
 
     if (isSuperIgnored) {
       const newSuperIgnoredUsers = superIgnoredUsers.filter(
-        user => user.id !== userId,
+        user => user.toLowerCase() !== username.toLowerCase(),
       );
       await this.setPreference({superIgnoredUsers: newSuperIgnoredUsers});
       return false;
     } else {
-      const newSuperIgnoredUsers = [
-        ...superIgnoredUsers,
-        {id: userId, name: username},
-      ];
+      const newSuperIgnoredUsers = [...superIgnoredUsers, username];
       await this.setPreference({superIgnoredUsers: newSuperIgnoredUsers});
       return true;
     }
@@ -1534,20 +1466,21 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    * Gets the list of super-ignored users.
    * @returns A promise that resolves with an array of super-ignored users.
    */
-  async getSuperIgnoredUsers(): Promise<User[]> {
+  async getSuperIgnoredUsers(): Promise<string[]> {
     const items = await this.getPreference({superIgnoredUsers: []});
-    return items.superIgnoredUsers as User[];
+    return items.superIgnoredUsers as string[];
   }
 
   /**
    * Checks if a user is super-ignored.
-   * @param userId The user ID to check.
+   * @param username The username to check.
    * @param superIgnoredUsers The list of super-ignored users.
    * @returns True if the user is super-ignored, false otherwise.
    */
-  isSuperIgnored(userId: string, superIgnoredUsers: User[]): boolean {
-    console.log('isSuperIgnored called with:', {userId, superIgnoredUsers});
-    return superIgnoredUsers.some(user => user.id === userId);
+  isSuperIgnored(username: string, superIgnoredUsers: string[]): boolean {
+    return superIgnoredUsers.some(
+      user => user.toLowerCase() === username.toLowerCase(),
+    );
   }
 
   /**
@@ -1555,9 +1488,9 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    * @param post The post element to modify.
    * @param superIgnoredUsers The list of super-ignored users.
    */
-  applySuperIgnore(post: HTMLElement, superIgnoredUsers: User[]): void {
-    const authorId = post.dataset.authorId;
-    if (!authorId || !this.isSuperIgnored(authorId, superIgnoredUsers)) {
+  applySuperIgnore(post: HTMLElement, superIgnoredUsers: string[]): void {
+    const author = post.dataset.author;
+    if (!author || !this.isSuperIgnored(author, superIgnoredUsers)) {
       return;
     }
 
@@ -1623,7 +1556,4 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
   }
 }
 
-export interface User {
-  id: string;
-  name: string;
-}
+export type User = string;

@@ -8,7 +8,7 @@ import {MDCSlider} from '@material/slider';
 interface Settings {
   debugMode: boolean;
   ratingThreshold: number;
-  blockedUsers: string[];
+  superIgnoredUsers: string[];
   alwaysShowUsers: string[];
   ignoredThreads: string[];
   ignoreThreadsContaining: string[];
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const settings = [
-    'blockedUsers',
+    'superIgnoredUsers',
     'alwaysShowUsers',
     'ignoredThreads',
     'ignoreThreadsContaining',
@@ -142,8 +142,14 @@ document.addEventListener('DOMContentLoaded', () => {
               ?.appendChild(chipEl);
           });
         } else {
-          values.forEach((value: string) => {
-            const chipEl = createChip(value);
+          values.forEach((value: any) => {
+            let chipText: string;
+            if (typeof value === 'object' && value !== null) {
+              chipText = value.name || value.username || String(value);
+            } else {
+              chipText = String(value);
+            }
+            const chipEl = createChip(chipText);
             chipSetEl
               .querySelector('.mdc-evolution-chip-set__chips')
               ?.appendChild(chipEl);
@@ -194,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
       )
         .map(el => el.textContent || '')
         .filter(Boolean);
-      newSettings[setting as keyof Settings] = chips;
+      newSettings[setting as keyof Settings] = chips as any;
     });
     newSettings.favoriteRivalsPage = (
       document.getElementById('favoriteRivalsPage-input') as HTMLInputElement
@@ -214,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ).toString();
 
     const chipSettings = [
-      'blockedUsers',
+      'superIgnoredUsers',
       'alwaysShowUsers',
       'ignoredThreads',
       'ignoreThreadsContaining',
@@ -228,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chipsContainer.innerHTML = ''; // Clear existing chips
         const values =
           (newSettings[settingKey as keyof Settings] as string[]) || [];
-        values.forEach(value => {
+        values.forEach((value: string) => {
           const chipEl = createChip(value);
           chipsContainer.appendChild(chipEl);
         });
@@ -273,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const expectedKeys = [
         'debugMode',
         'ratingThreshold',
-        'blockedUsers',
+        'superIgnoredUsers',
         'alwaysShowUsers',
         'ignoredThreads',
         'ignoreThreadsContaining',
