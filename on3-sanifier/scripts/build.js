@@ -48,7 +48,31 @@ async function build() {
   const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf-8'));
 
   if (browser === 'firefox') {
-    // For Firefox, use the background script from browser_specific_settings
+    manifest.manifest_version = 2;
+    manifest.browser_action = manifest.action;
+    delete manifest.action;
+
+    // Convert web_accessible_resources for Manifest V2
+    if (manifest.web_accessible_resources) {
+      const resources = new Set();
+      for (const resource of manifest.web_accessible_resources) {
+        for (const item of resource.resources) {
+          resources.add(item);
+        }
+      }
+      manifest.web_accessible_resources = [...resources];
+    }
+
+    // Convert content_security_policy for Manifest V2
+    if (
+      manifest.content_security_policy &&
+      manifest.content_security_policy.extension_pages
+    ) {
+      manifest.content_security_policy =
+        manifest.content_security_policy.extension_pages;
+    }
+
+    // Use the background scripts from browser_specific_settings
     if (
       manifest.browser_specific_settings &&
       manifest.browser_specific_settings.gecko &&
@@ -61,13 +85,11 @@ async function build() {
         scripts: ['js/background.js'],
       };
     }
-
     // Clean up browser_specific_settings for Firefox
     if (manifest.browser_specific_settings.gecko) {
-      const geckoId = manifest.browser_specific_settings.gecko.id;
       manifest.browser_specific_settings = {
         gecko: {
-          id: geckoId,
+          id: manifest.browser_specific_settings.gecko.id,
         },
       };
     }

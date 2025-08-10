@@ -433,23 +433,41 @@ export class On3Helpers {
       }
 
       const el = document.createElement('div');
-      const elHTML = `
-        <div class='ns-tb'>
-          <div class='ns-tb-label'>
-            on3 Sanifier
-          </div>
-          <button id='on3ToggleHide' class='btn'
-            title='Show/Hide hidden posts (ALT-UP)'>Show Hidden
-          </button>
-          <span id='hiddenStatus'>There are no hidden posts on this page.</span>
-          <button id='on3IgnoreForum' class='btn--red btn'
-            title='Ignore this Forum'>Ignore Forum</button>
-          <button id='on3StopIgnoringForum' class='btn--green btn'
-            title='Ignore this Forum'>Stop Ignoring Forum</button>
-          </li>
-        </div>
-      `;
-      el.innerHTML = elHTML;
+      const nsTb = document.createElement('div');
+      nsTb.className = 'ns-tb';
+
+      const label = document.createElement('div');
+      label.className = 'ns-tb-label';
+      label.textContent = 'on3 Sanifier';
+      nsTb.appendChild(label);
+
+      const toggleButton = document.createElement('button');
+      toggleButton.id = 'on3ToggleHide';
+      toggleButton.className = 'btn';
+      toggleButton.title = 'Show/Hide hidden posts (ALT-UP)';
+      toggleButton.textContent = 'Show Hidden';
+      nsTb.appendChild(toggleButton);
+
+      const status = document.createElement('span');
+      status.id = 'hiddenStatus';
+      status.textContent = 'There are no hidden posts on this page.';
+      nsTb.appendChild(status);
+
+      const ignoreButton = document.createElement('button');
+      ignoreButton.id = 'on3IgnoreForum';
+      ignoreButton.className = 'btn--red btn';
+      ignoreButton.title = 'Ignore this Forum';
+      ignoreButton.textContent = 'Ignore Forum';
+      nsTb.appendChild(ignoreButton);
+
+      const stopIgnoringButton = document.createElement('button');
+      stopIgnoringButton.id = 'on3StopIgnoringForum';
+      stopIgnoringButton.className = 'btn--green btn';
+      stopIgnoringButton.title = 'Ignore this Forum';
+      stopIgnoringButton.textContent = 'Stop Ignoring Forum';
+      nsTb.appendChild(stopIgnoringButton);
+
+      el.appendChild(nsTb);
       const body = document.querySelector('div.p-body-pageContent');
       const alreadyExisting = document.querySelector('.ns-tb');
       if (body && !alreadyExisting) {
@@ -490,14 +508,25 @@ export class On3Helpers {
     this.addClass(el, 'rippleButton');
     el.setAttribute('title', 'Toggle Hidden');
     el.setAttribute('id', 'on3ToggleHideFab');
-    const elHTML = `
-          <span class="button-text">
-            <i class="fa--xf far fa-eye" aria-hidden="true"></i>
-            <span class="u-srOnly">Show All</span>
-          </span>
-        <div class="ripple-container"></div>`;
+    const buttonText = document.createElement('span');
+    buttonText.className = 'button-text';
 
-    el.innerHTML = elHTML;
+    const icon = document.createElement('i');
+    icon.className = 'fa--xf far fa-eye';
+    icon.setAttribute('aria-hidden', 'true');
+
+    const srOnly = document.createElement('span');
+    srOnly.className = 'u-srOnly';
+    srOnly.textContent = 'Show All';
+
+    buttonText.appendChild(icon);
+    buttonText.appendChild(srOnly);
+
+    const rippleContainer = document.createElement('div');
+    rippleContainer.className = 'ripple-container';
+
+    el.appendChild(buttonText);
+    el.appendChild(rippleContainer);
     const buttonBar = document.querySelector('.uix_fabBar>.u-scrollButtons');
     if (buttonBar) {
       buttonBar.insertBefore(el, buttonBar.firstChild);
@@ -523,23 +552,41 @@ export class On3Helpers {
         }
       }
       const el = document.createElement('div');
-      const elHTML = `
-          <div class='ns-tb'>
-            <div class='ns-tb-label'>
-              on3 Sanifier
-            </div>
-            <button id='on3ToggleHide' class='btn'
-              title='Show/Hide hidden posts (ALT-UP)'>Show Hidden
-            </button>
-            <span id='hiddenStatus'>There are no hidden posts on this page.</span>
-            <button id='on3IgnoreThread' class='btn--red btn'
-              title='Ignore this thread'>Ignore Thread</button>
-            <button id='on3StopIgnoringThread' class='btn--green btn'
-              title='Ignore this Thread'>Stop Ignoring Thread</button>
-            </li>
-          </div>
-        `;
-      el.innerHTML = elHTML;
+      const nsTb = document.createElement('div');
+      nsTb.className = 'ns-tb';
+
+      const label = document.createElement('div');
+      label.className = 'ns-tb-label';
+      label.textContent = 'on3 Sanifier';
+      nsTb.appendChild(label);
+
+      const toggleButton = document.createElement('button');
+      toggleButton.id = 'on3ToggleHide';
+      toggleButton.className = 'btn';
+      toggleButton.title = 'Show/Hide hidden posts (ALT-UP)';
+      toggleButton.textContent = 'Show Hidden';
+      nsTb.appendChild(toggleButton);
+
+      const status = document.createElement('span');
+      status.id = 'hiddenStatus';
+      status.textContent = 'There are no hidden posts on this page.';
+      nsTb.appendChild(status);
+
+      const ignoreButton = document.createElement('button');
+      ignoreButton.id = 'on3IgnoreThread';
+      ignoreButton.className = 'btn--red btn';
+      ignoreButton.title = 'Ignore this thread';
+      ignoreButton.textContent = 'Ignore Thread';
+      nsTb.appendChild(ignoreButton);
+
+      const stopIgnoringButton = document.createElement('button');
+      stopIgnoringButton.id = 'on3StopIgnoringThread';
+      stopIgnoringButton.className = 'btn--green btn';
+      stopIgnoringButton.title = 'Ignore this Thread';
+      stopIgnoringButton.textContent = 'Stop Ignoring Thread';
+      nsTb.appendChild(stopIgnoringButton);
+
+      el.appendChild(nsTb);
 
       const body = document.querySelector('div.p-body-pageContent');
       const alreadyExisting = document.querySelector('.ns-tb');
@@ -1008,7 +1055,7 @@ export class On3Helpers {
   updateStatusText(text: string): void {
     const statusEl = document.getElementById('hiddenStatus');
     if (statusEl) {
-      statusEl.innerHTML = text;
+      statusEl.textContent = text;
       statusEl.setAttribute('title', text);
     }
   }
@@ -1020,22 +1067,34 @@ export class On3Helpers {
   showTurboBar(): void {
     const turboEl = document.createElement('div');
 
-    const barHTML = `
-        <div class='ns-tb'>
-          <div class='ns-tb-label'>
-            on3 Sanifier
-          </div>
-<button id='on3ToggleHideThreads' class='btn'
-title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
-<span id='hiddenStatus'>There are no hidden threads on this page.</span>
-          <button id='on3OpenTabs' class='btn btn--green'
-            title='Open each thread with new posts in a new tab'>
-            Open New Posts in Tabs
-          </button>
-        </div>
-      `;
+    const nsTb = document.createElement('div');
+    nsTb.className = 'ns-tb';
 
-    turboEl.innerHTML = barHTML;
+    const label = document.createElement('div');
+    label.className = 'ns-tb-label';
+    label.textContent = 'on3 Sanifier';
+    nsTb.appendChild(label);
+
+    const toggleButton = document.createElement('button');
+    toggleButton.id = 'on3ToggleHideThreads';
+    toggleButton.className = 'btn';
+    toggleButton.title = 'Show/Hide hidden threads (ALT-UP)';
+    toggleButton.textContent = 'Show Hidden';
+    nsTb.appendChild(toggleButton);
+
+    const status = document.createElement('span');
+    status.id = 'hiddenStatus';
+    status.textContent = 'There are no hidden threads on this page.';
+    nsTb.appendChild(status);
+
+    const openTabsButton = document.createElement('button');
+    openTabsButton.id = 'on3OpenTabs';
+    openTabsButton.className = 'btn btn--green';
+    openTabsButton.title = 'Open each thread with new posts in a new tab';
+    openTabsButton.textContent = 'Open New Posts in Tabs';
+    nsTb.appendChild(openTabsButton);
+
+    turboEl.appendChild(nsTb);
 
     const body = document.querySelector('div.p-body-pageContent');
     const alreadyExisting = document.querySelector('.ns-tb');
@@ -1450,9 +1509,15 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
     const isSuperIgnored = this.isSuperIgnored(username, superIgnoredUsers);
 
     if (isSuperIgnored) {
-      const newSuperIgnoredUsers = superIgnoredUsers.filter(
-        user => user.toLowerCase() !== username.toLowerCase(),
-      );
+      const newSuperIgnoredUsers = superIgnoredUsers.filter(user => {
+        const lowercasedUsername = username.toLowerCase();
+        if (typeof user === 'string') {
+          return user.toLowerCase() !== lowercasedUsername;
+        } else if (typeof user === 'object' && user !== null && user.name) {
+          return user.name.toLowerCase() !== lowercasedUsername;
+        }
+        return true; // Keep users that are not strings or objects with name
+      });
       await this.setPreference({superIgnoredUsers: newSuperIgnoredUsers});
       return false;
     } else {
@@ -1466,9 +1531,9 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    * Gets the list of super-ignored users.
    * @returns A promise that resolves with an array of super-ignored users.
    */
-  async getSuperIgnoredUsers(): Promise<string[]> {
+  async getSuperIgnoredUsers(): Promise<any[]> {
     const items = await this.getPreference({superIgnoredUsers: []});
-    return items.superIgnoredUsers as string[];
+    return items.superIgnoredUsers as any[];
   }
 
   /**
@@ -1477,10 +1542,16 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    * @param superIgnoredUsers The list of super-ignored users.
    * @returns True if the user is super-ignored, false otherwise.
    */
-  isSuperIgnored(username: string, superIgnoredUsers: string[]): boolean {
-    return superIgnoredUsers.some(
-      user => user.toLowerCase() === username.toLowerCase(),
-    );
+  isSuperIgnored(username: string, superIgnoredUsers: any[]): boolean {
+    const lowercasedUsername = username.toLowerCase();
+    return superIgnoredUsers.some(user => {
+      if (typeof user === 'string') {
+        return user.toLowerCase() === lowercasedUsername;
+      } else if (typeof user === 'object' && user !== null && user.name) {
+        return user.name.toLowerCase() === lowercasedUsername;
+      }
+      return false;
+    });
   }
 
   /**
@@ -1488,7 +1559,7 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
    * @param post The post element to modify.
    * @param superIgnoredUsers The list of super-ignored users.
    */
-  applySuperIgnore(post: HTMLElement, superIgnoredUsers: string[]): void {
+  applySuperIgnore(post: HTMLElement, superIgnoredUsers: any[]): void {
     const author = post.dataset.author;
     if (!author || !this.isSuperIgnored(author, superIgnoredUsers)) {
       return;
@@ -1510,7 +1581,11 @@ title='Show/Hide hidden threads (ALT-UP)'>Show Hidden</button>
         avatarLink.remove();
       }
       // Add the clown emoji.
-      avatarWrapper.innerHTML = '<span class="clown-emoji">🤡</span>';
+      const clownEmoji = document.createElement('span');
+      clownEmoji.className = 'clown-emoji';
+      clownEmoji.textContent = '🤡';
+      avatarWrapper.innerHTML = '';
+      avatarWrapper.appendChild(clownEmoji);
     }
 
     // Change username

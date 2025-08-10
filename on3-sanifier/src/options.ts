@@ -33,21 +33,58 @@ document.addEventListener('DOMContentLoaded', () => {
     const chipEl = document.createElement('div');
     chipEl.className = 'mdc-evolution-chip';
     chipEl.setAttribute('role', 'row');
-    chipEl.innerHTML = `
-      <span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--primary" role="gridcell">
-        <button class="mdc-evolution-chip__action mdc-evolution-chip__action--primary" type="button" tabindex="0">
-          <span class="mdc-evolution-chip__ripple mdc-evolution-chip__ripple--primary"></span>
-          <span class="mdc-evolution-chip__text-label">${text}</span>
-        </button>
-      </span>
-      <span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--trailing" role="gridcell">
-        <button class="mdc-evolution-chip__action mdc-evolution-chip__action--trailing on3san-chip-delicon"
-          type="button" tabindex="-1" data-mdc-deletable="true" aria-label="Remove chip ${text}">
-          <span class="mdc-evolution-chip__ripple mdc-evolution-chip__ripple--trailing"></span>
-          <span class="mdc-evolution-chip__icon mdc-evolution-chip__icon--trailing">🆇</span>
-        </button>
-      </span>
-    `;
+
+    const primaryCell = document.createElement('span');
+    primaryCell.className =
+      'mdc-evolution-chip__cell mdc-evolution-chip__cell--primary';
+    primaryCell.setAttribute('role', 'gridcell');
+
+    const primaryButton = document.createElement('button');
+    primaryButton.className =
+      'mdc-evolution-chip__action mdc-evolution-chip__action--primary';
+    primaryButton.type = 'button';
+    primaryButton.tabIndex = 0;
+
+    const primaryRipple = document.createElement('span');
+    primaryRipple.className =
+      'mdc-evolution-chip__ripple mdc-evolution-chip__ripple--primary';
+
+    const primaryLabel = document.createElement('span');
+    primaryLabel.className = 'mdc-evolution-chip__text-label';
+    primaryLabel.textContent = text;
+
+    primaryButton.appendChild(primaryRipple);
+    primaryButton.appendChild(primaryLabel);
+    primaryCell.appendChild(primaryButton);
+
+    const trailingCell = document.createElement('span');
+    trailingCell.className =
+      'mdc-evolution-chip__cell mdc-evolution-chip__cell--trailing';
+    trailingCell.setAttribute('role', 'gridcell');
+
+    const trailingButton = document.createElement('button');
+    trailingButton.className =
+      'mdc-evolution-chip__action mdc-evolution-chip__action--trailing on3san-chip-delicon';
+    trailingButton.type = 'button';
+    trailingButton.tabIndex = -1;
+    trailingButton.setAttribute('data-mdc-deletable', 'true');
+    trailingButton.setAttribute('aria-label', `Remove chip ${text}`);
+
+    const trailingRipple = document.createElement('span');
+    trailingRipple.className =
+      'mdc-evolution-chip__ripple mdc-evolution-chip__ripple--trailing';
+
+    const trailingIcon = document.createElement('span');
+    trailingIcon.className = 'mdc-evolution-chip__icon mdc-evolution-chip__icon--trailing';
+    trailingIcon.textContent = '🆇';
+
+    trailingButton.appendChild(trailingRipple);
+    trailingButton.appendChild(trailingIcon);
+    trailingCell.appendChild(trailingButton);
+
+    chipEl.appendChild(primaryCell);
+    chipEl.appendChild(trailingCell);
+
     return chipEl;
   };
 
@@ -231,7 +268,9 @@ document.addEventListener('DOMContentLoaded', () => {
         '.mdc-evolution-chip-set__chips',
       );
       if (chipsContainer) {
-        chipsContainer.innerHTML = ''; // Clear existing chips
+        while (chipsContainer.firstChild) {
+          chipsContainer.removeChild(chipsContainer.firstChild);
+        }
         const values =
           (newSettings[settingKey as keyof Settings] as string[]) || [];
         values.forEach((value: string) => {
