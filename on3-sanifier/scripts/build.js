@@ -48,16 +48,31 @@ async function build() {
   const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf-8'));
 
   if (browser === 'firefox') {
-    delete manifest.background.service_worker;
-    manifest.background.scripts = ['js/background.js'];
-    manifest.browser_specific_settings = {
-      gecko: {
-        id: 'on3-sanifier@example.com',
-      },
-    };
+    // For Firefox, use the background script from browser_specific_settings
+    if (
+      manifest.browser_specific_settings &&
+      manifest.browser_specific_settings.gecko &&
+      manifest.browser_specific_settings.gecko.background
+    ) {
+      manifest.background = manifest.browser_specific_settings.gecko.background;
+    } else {
+      // Fallback if not defined in browser_specific_settings
+      manifest.background = {
+        scripts: ['js/background.js'],
+      };
+    }
+
+    // Clean up browser_specific_settings for Firefox
+    if (manifest.browser_specific_settings.gecko) {
+      const geckoId = manifest.browser_specific_settings.gecko.id;
+      manifest.browser_specific_settings = {
+        gecko: {
+          id: geckoId,
+        },
+      };
+    }
   } else {
-    // Chrome
-    delete manifest.background.scripts;
+    // Chrome - remove browser_specific_settings
     delete manifest.browser_specific_settings;
   }
 

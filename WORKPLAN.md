@@ -3,7 +3,6 @@
 This document tracks the development tasks for the project.
 
 ## To Do
-- DB Migration: Update local preferences so that ignoredUsers or blockedUsers preferences are migrated to the new superIgnoredUsers preference. Update the DB Version we are now using to version 3.
 - Gate ignored users behind an additional check. Idiot Box
   - Show an error snackbar if the input is incorrect.
 - Bug: Users that I've show with the idiot box are visible again after I click "Sanify" button. I want the Sanify button to "reset" the state of the page so to speak. The input of the idiot box goes back to empty, super-ignored users are hidden again, only show posts on the thread that have the required number of reactions for the threshold, make sure users that are in the "Always show" list are visible also.
@@ -157,6 +156,7 @@ This document tracks the development tasks for the project.
 ```
 
 ## Completed
+- [x] DB Migration: Update local preferences so that ignoredUsers or blockedUsers preferences are migrated to the new superIgnoredUsers preference. Update the DB Version we are now using to version 3.
 - [x] Fix bug where clicking on the super ignore button is being saved in the preferences as an object (I think). The options page shows a chip that says "[object Object]"
 - [ ] Idiot box
   - When "show hidden" is active, continue to hide posts from ignored users.
