@@ -11,6 +11,8 @@
     "watch:chrome": "node scripts/build.js --browser=chrome --watch",
     "watch:firefox": "node scripts/build.js --browser=firefox --watch",
     "build:firefox-reviewer-bundle": "node scripts/build-firefox-reviewer-bundle.js",
+    "build:chrome-package": "node scripts/package.js --browser=chrome",
+    "build:firefox-package": "node scripts/package.js --browser=firefox",
     "test": "esbuild src/lib/helpers_test.ts --bundle --outfile=dist-test/bundle.test.js --tsconfig=tsconfig.json && karma start karma.conf.js",
     "lint": "gts lint",
     "fix": "gts fix",

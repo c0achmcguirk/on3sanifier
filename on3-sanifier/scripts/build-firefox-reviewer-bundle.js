@@ -3,13 +3,21 @@ const path = require('path');
 const archiver = require('archiver');
 
 const bundleDir = path.join(__dirname, '../dist-firefox-reviewer-bundle');
-const outputZip = path.join(
-  __dirname,
-  '../on3-sanifier-firefox-reviewer-bundle.zip',
-);
+const packageDir = path.join(__dirname, '../packages');
 const projectRoot = path.join(__dirname, '..');
 
 async function createReviewerBundle() {
+  await fs.ensureDir(packageDir);
+
+  const packageJsonPath = path.join(projectRoot, 'package.json');
+  const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+  const version = packageJson.version;
+
+  const outputZip = path.join(
+    packageDir,
+    `on3sanifier.firefoxReviewerBundle.${version}.zip`,
+  );
+
   // 1. Create a clean directory.
   await fs.emptyDir(bundleDir);
 
@@ -88,7 +96,7 @@ This bundle includes all the necessary files to build the extension:
 
   output.on('close', () => {
     console.log(
-      `Reviewer bundle created successfully: ${
+      `Reviewer bundle created successfully: ${ 
         archive.pointer() / 1024 / 1024
       } MB`,
     );
