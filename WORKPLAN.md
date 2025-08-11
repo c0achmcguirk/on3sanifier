@@ -3,6 +3,10 @@
 This document tracks the development tasks for the project.
 
 ## To Do
+- Options Page:
+  - Replace the "Enable debugging" checkbox with a Material Design toggle switch.
+  - Improve the "Favorite page" setting with a chip or a label and an edit icon.
+- Make the "Super Ignore" button look more natural in the user hover card.
 - Gate ignored users behind an additional check. Idiot Box
   - Show an error snackbar if the input is incorrect.
 - Bug: Users that I've show with the idiot box are visible again after I click "Sanify" button. I want the Sanify button to "reset" the state of the page so to speak. The input of the idiot box goes back to empty, super-ignored users are hidden again, only show posts on the thread that have the required number of reactions for the threshold, make sure users that are in the "Always show" list are visible also.
